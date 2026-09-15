@@ -1,16 +1,66 @@
-# React + Vite
+# Shader Experiments
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A collection of WebGL shader experiments using React Three Fiber.
 
-Currently, two official plugins are available:
+## Experiments
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### 1. Fluid Simulation
+Interactive smoke/fluid simulation using GPU texture feedback.
 
-## React Compiler
+![Fluid Demo](docs/fluid-demo.gif)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+**Techniques:**
+- Ping-pong buffers for state persistence
+- Advection (moving fluid along velocity)
+- Pressure solver (Jacobi iteration)
+- Incompressibility (gradient subtraction)
 
-## Expanding the Oxlint configuration
+## Getting Started
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+```bash
+npm install
+npm run dev
+```
+
+## Project Structure
+
+```
+src/
+├── fluid/
+│   ├── FluidDemo.jsx          # Main component
+│   └── shaders/
+│       ├── advection.glsl     # Move quantities along velocity
+│       ├── splat.glsl         # Add force/density at mouse
+│       ├── divergence.glsl    # Compute flow divergence
+│       ├── pressure.glsl      # Jacobi pressure solver
+│       ├── gradientSubtract.glsl  # Make incompressible
+│       ├── display.glsl       # Render to screen
+│       └── vertex.glsl        # Basic vertex shader
+└── App.jsx
+```
+
+## Documentation
+
+See [docs/GPU_TEXTURE_FEEDBACK_PATTERNS.md](docs/GPU_TEXTURE_FEEDBACK_PATTERNS.md) for a comprehensive guide on:
+
+- **Smoke/Fluid** - Velocity + density advection
+- **Flow Fields** - Particle systems following vector fields
+- **Reaction-Diffusion** - Organic pattern generation (Gray-Scott)
+- **Water Ripples** - Wave equation simulation
+- **Trails/Ribbons** - Persistence effects
+- **Cellular Automata** - Game of Life and variations
+- **Erosion** - Terrain simulation
+
+## Tech Stack
+
+- React + Vite
+- Three.js / React Three Fiber
+- GLSL Shaders
+- vite-plugin-glsl
+
+## Resources
+
+- [The Book of Shaders](https://thebookofshaders.com/)
+- [Shadertoy](https://shadertoy.com)
+- [GPU Gems - Fluid Dynamics](https://developer.nvidia.com/gpugems/gpugems/part-vi-beyond-triangles/chapter-38-fast-fluid-dynamics-simulation-gpu)
+- Jos Stam's "Stable Fluids" (1999)
