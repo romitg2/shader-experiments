@@ -2,13 +2,13 @@ import { useRef, useState, useEffect, useMemo } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 
-import vertexShader from './shaders/vertex.glsl'
-import advectionShader from './shaders/advection.glsl'
-import splatShader from './shaders/splat.glsl'
-import divergenceShader from './shaders/divergence.glsl'
-import pressureShader from './shaders/pressure.glsl'
-import gradientSubtractShader from './shaders/gradientSubtract.glsl'
-import displayShader from './shaders/display.glsl'
+import vertexShader from './shaders/vertex.glsl?raw'
+import advectionShader from './shaders/advection.glsl?raw'
+import splatShader from './shaders/splat.glsl?raw'
+import divergenceShader from './shaders/divergence.glsl?raw'
+import pressureShader from './shaders/pressure.glsl?raw'
+import gradientSubtractShader from './shaders/gradientSubtract.glsl?raw'
+import displayShader from './shaders/display.glsl?raw'
 
 const SIM_RESOLUTION = 256
 const PRESSURE_ITERATIONS = 20
@@ -146,15 +146,15 @@ function FluidSimCore({ onTextureUpdate, mouseRef }) {
             // Add velocity
             materials.splat.uniforms.uTarget.value = velocity.current.read.texture
             materials.splat.uniforms.uPoint.value.set(mouse.x, mouse.y)
-            materials.splat.uniforms.uColor.value.set(dx * 150, dy * 150, 0)
-            materials.splat.uniforms.uRadius.value = 0.008
+            materials.splat.uniforms.uColor.value.set(dx * 300, dy * 300, 0)
+            materials.splat.uniforms.uRadius.value = 0.015
             renderToFBO(materials.splat, velocity.current.write)
             velocity.current.swap()
 
             // Add density (white/grayscale only)
             materials.splat.uniforms.uTarget.value = density.current.read.texture
-            materials.splat.uniforms.uColor.value.set(0.4, 0.4, 0.4)
-            materials.splat.uniforms.uRadius.value = 0.006
+            materials.splat.uniforms.uColor.value.set(1.0, 1.0, 1.0)
+            materials.splat.uniforms.uRadius.value = 0.015
             renderToFBO(materials.splat, density.current.write)
             density.current.swap()
 
