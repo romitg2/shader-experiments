@@ -2,172 +2,237 @@ import { useRef, useEffect, useMemo } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 
+// Import shaders as raw strings
+import vertexShader from './shaders/vertex.glsl?raw'
+import advectionShader from './shaders/advection.glsl?raw'
+import splatShader from './shaders/splat.glsl?raw'
+import divergenceShader from './shaders/divergence.glsl?raw'
+import pressureShader from './shaders/pressure.glsl?raw'
+import gradientSubtractShader from './shaders/gradientSubtract.glsl?raw'
+import displayShader from './shaders/display.glsl?raw'
+
 const SIM_RES = 256
 
-const vertShader = `
-varying vec2 vUv;
-void main() {
-    vUv = uv;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-}`
-
-const splatShader = `
-uniform sampler2D uTarget;
-uniform vec2 uPoint;
-uniform vec3 uColor;
-uniform float uRadius;
-varying vec2 vUv;
-void main() {
-    vec2 p = vUv - uPoint;
-    float splat = exp(-dot(p, p) / uRadius);
-    vec3 base = texture2D(uTarget, vUv).rgb;
-    gl_FragColor = vec4(base + uColor * splat, 1.0);
-}`
-
-const advectShader = `
-uniform sampler2D uVelocity;
-uniform sampler2D uSource;
-uniform float uDissipation;
-varying vec2 vUv;
-void main() {
-    vec2 vel = texture2D(uVelocity, vUv).xy;
-    vec2 coord = vUv - vel * 0.005;
-    vec3 result = texture2D(uSource, coord).rgb * uDissipation;
-    gl_FragColor = vec4(result, 1.0);
-}`
-
-const displayShader = `
-uniform sampler2D uTexture;
-uniform float uDebug;
-varying vec2 vUv;
-void main() {
-    vec3 c = texture2D(uTexture, vUv).rgb;
-    // Add debug: show UV as color if uDebug > 0
-    if (uDebug > 0.5) {
-        gl_FragColor = vec4(vUv.x, vUv.y, 0.5, 1.0);
-    } else {
-        gl_FragColor = vec4(c + 0.02, 1.0); // slight offset to see black
-    }
-}`
-
-function createFBO() {
-    return new THREE.WebGLRenderTarget(SIM_RES, SIM_RES, {
+// Create a render target pair for ping-pong
+function createDoubleFBO(width, height, type = THREE.HalfFloatType) {
+    const params = {
         minFilter: THREE.LinearFilter,
         magFilter: THREE.LinearFilter,
         format: THREE.RGBAFormat,
-        type: THREE.FloatType,
-    })
+        type: type,
+        depthBuffer: false,
+        stencilBuffer: false,
+    }
+    return {
+        read: new THREE.WebGLRenderTarget(width, height, params),
+        write: new THREE.WebGLRenderTarget(width, height, params),
+        swap() {
+            const temp = this.read
+            this.read = this.write
+            this.write = temp
+        }
+    }
 }
 
-function Fluid({ mouseRef }) {
-    const { gl } = useThree()
-    const displayRef = useRef()
-    const frameCount = useRef(0)
+function FluidSim({ mouseRef }) {
+    const { gl, size } = useThree()
 
-    // FBOs
-    const densityA = useMemo(() => createFBO(), [])
-    const densityB = useMemo(() => createFBO(), [])
-    const velA = useMemo(() => createFBO(), [])
-    const velB = useMemo(() => createFBO(), [])
-    const currentDen = useRef(densityA)
-    const currentVel = useRef(velA)
+    // Scene and camera for rendering to FBOs
+    const simScene = useMemo(() => new THREE.Scene(), [])
+    const simCamera = useMemo(() => {
+        const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
+        return cam
+    }, [])
 
-    // Render setup
-    const quad = useMemo(() => new THREE.PlaneGeometry(2, 2), [])
-    const quadMesh = useMemo(() => new THREE.Mesh(quad), [quad])
-    const fboScene = useMemo(() => { const s = new THREE.Scene(); s.add(quadMesh); return s }, [quadMesh])
-    const fboCam = useMemo(() => new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1), [])
+    // Fullscreen quad geometry
+    const quadGeom = useMemo(() => new THREE.PlaneGeometry(2, 2), [])
 
-    // Materials
-    const splatMat = useMemo(() => new THREE.ShaderMaterial({
-        vertexShader: vertShader,
-        fragmentShader: splatShader,
-        uniforms: {
-            uTarget: { value: null },
-            uPoint: { value: new THREE.Vector2() },
-            uColor: { value: new THREE.Vector3() },
-            uRadius: { value: 0.01 },
-        }
-    }), [])
+    // Create FBOs
+    const velocity = useMemo(() => createDoubleFBO(SIM_RES, SIM_RES), [])
+    const density = useMemo(() => createDoubleFBO(SIM_RES, SIM_RES), [])
+    const pressure = useMemo(() => createDoubleFBO(SIM_RES, SIM_RES), [])
+    const divergenceFBO = useMemo(() => {
+        return new THREE.WebGLRenderTarget(SIM_RES, SIM_RES, {
+            minFilter: THREE.NearestFilter,
+            magFilter: THREE.NearestFilter,
+            format: THREE.RGBAFormat,
+            type: THREE.HalfFloatType,
+            depthBuffer: false,
+        })
+    }, [])
 
-    const advectMat = useMemo(() => new THREE.ShaderMaterial({
-        vertexShader: vertShader,
-        fragmentShader: advectShader,
+    // Create shader materials
+    const advectionMat = useMemo(() => new THREE.ShaderMaterial({
+        vertexShader,
+        fragmentShader: advectionShader,
         uniforms: {
             uVelocity: { value: null },
             uSource: { value: null },
-            uDissipation: { value: 0.97 },
+            uDt: { value: 0.016 },
+            uDissipation: { value: 0.99 },
+            uResolution: { value: new THREE.Vector2(SIM_RES, SIM_RES) },
         }
     }), [])
 
-    const render = (mat, target) => {
-        quadMesh.material = mat
+    const splatMat = useMemo(() => new THREE.ShaderMaterial({
+        vertexShader,
+        fragmentShader: splatShader,
+        uniforms: {
+            uTarget: { value: null },
+            uPoint: { value: new THREE.Vector2(0.5, 0.5) },
+            uColor: { value: new THREE.Vector3(0, 0, 0) },
+            uRadius: { value: 0.0005 },
+            uResolution: { value: new THREE.Vector2(SIM_RES, SIM_RES) },
+        }
+    }), [])
+
+    const divergenceMat = useMemo(() => new THREE.ShaderMaterial({
+        vertexShader,
+        fragmentShader: divergenceShader,
+        uniforms: {
+            uVelocity: { value: null },
+            uResolution: { value: new THREE.Vector2(SIM_RES, SIM_RES) },
+        }
+    }), [])
+
+    const pressureMat = useMemo(() => new THREE.ShaderMaterial({
+        vertexShader,
+        fragmentShader: pressureShader,
+        uniforms: {
+            uPressure: { value: null },
+            uDivergence: { value: null },
+            uResolution: { value: new THREE.Vector2(SIM_RES, SIM_RES) },
+        }
+    }), [])
+
+    const gradientSubtractMat = useMemo(() => new THREE.ShaderMaterial({
+        vertexShader,
+        fragmentShader: gradientSubtractShader,
+        uniforms: {
+            uPressure: { value: null },
+            uVelocity: { value: null },
+            uResolution: { value: new THREE.Vector2(SIM_RES, SIM_RES) },
+        }
+    }), [])
+
+    const displayMat = useMemo(() => new THREE.ShaderMaterial({
+        vertexShader,
+        fragmentShader: displayShader,
+        uniforms: {
+            uDensity: { value: null },
+            uVelocity: { value: null },
+            uMode: { value: 0 },
+        }
+    }), [])
+
+    // Create quad mesh
+    const quadMesh = useMemo(() => {
+        const mesh = new THREE.Mesh(quadGeom, advectionMat)
+        simScene.add(mesh)
+        return mesh
+    }, [quadGeom, advectionMat, simScene])
+
+    // Display mesh (visible in main scene)
+    const displayMeshRef = useRef()
+
+    // Track previous mouse position
+    const prevMouse = useRef({ x: 0.5, y: 0.5 })
+
+    // Helper to render with a specific material to a target
+    const blit = (material, target) => {
+        quadMesh.material = material
         gl.setRenderTarget(target)
-        gl.render(fboScene, fboCam)
-        gl.setRenderTarget(null)
+        gl.render(simScene, simCamera)
     }
 
-    useFrame(() => {
-        frameCount.current++
+    useFrame((state, delta) => {
         const m = mouseRef.current
-        const dx = m.x - m.prevX
-        const dy = m.y - m.prevY
+        const dt = Math.min(delta, 0.033) // Cap delta time
 
-        if ((Math.abs(dx) > 0.001 || Math.abs(dy) > 0.001) && m.active) {
+        // Step 1: Add velocity and density at mouse position (splat)
+        if (m.active) {
+            // Calculate mouse velocity
+            const dx = (m.x - prevMouse.current.x) * 10
+            const dy = (m.y - prevMouse.current.y) * 10
+
             // Splat velocity
-            let next = currentVel.current === velA ? velB : velA
-            splatMat.uniforms.uTarget.value = currentVel.current.texture
+            splatMat.uniforms.uTarget.value = velocity.read.texture
             splatMat.uniforms.uPoint.value.set(m.x, m.y)
-            splatMat.uniforms.uColor.value.set(dx * 100, dy * 100, 0)
-            splatMat.uniforms.uRadius.value = 0.015
-            render(splatMat, next)
-            currentVel.current = next
+            splatMat.uniforms.uColor.value.set(dx * 50, dy * 50, 0)
+            splatMat.uniforms.uRadius.value = 0.001
+            blit(splatMat, velocity.write)
+            velocity.swap()
 
-            // Splat density
-            next = currentDen.current === densityA ? densityB : densityA
-            splatMat.uniforms.uTarget.value = currentDen.current.texture
-            splatMat.uniforms.uColor.value.set(1, 1, 1)
-            splatMat.uniforms.uRadius.value = 0.012
-            render(splatMat, next)
-            currentDen.current = next
-
-            m.prevX = m.x
-            m.prevY = m.y
+            // Splat density (white smoke)
+            splatMat.uniforms.uTarget.value = density.read.texture
+            splatMat.uniforms.uColor.value.set(0.8, 0.8, 0.8)
+            splatMat.uniforms.uRadius.value = 0.001
+            blit(splatMat, density.write)
+            density.swap()
         }
 
-        // Advect density
-        let next = currentDen.current === densityA ? densityB : densityA
-        advectMat.uniforms.uVelocity.value = currentVel.current.texture
-        advectMat.uniforms.uSource.value = currentDen.current.texture
-        advectMat.uniforms.uDissipation.value = 0.98
-        render(advectMat, next)
-        currentDen.current = next
+        prevMouse.current.x = m.x
+        prevMouse.current.y = m.y
 
-        // Advect velocity
-        next = currentVel.current === velA ? velB : velA
-        advectMat.uniforms.uSource.value = currentVel.current.texture
-        advectMat.uniforms.uDissipation.value = 0.99
-        render(advectMat, next)
-        currentVel.current = next
+        // Step 2: Advect velocity
+        advectionMat.uniforms.uVelocity.value = velocity.read.texture
+        advectionMat.uniforms.uSource.value = velocity.read.texture
+        advectionMat.uniforms.uDt.value = dt * 60
+        advectionMat.uniforms.uDissipation.value = 0.99
+        blit(advectionMat, velocity.write)
+        velocity.swap()
 
-        // Update display
-        if (displayRef.current) {
-            displayRef.current.uniforms.uTexture.value = currentDen.current.texture
-            // Show debug UV for first 60 frames to verify mesh is visible
-            displayRef.current.uniforms.uDebug.value = frameCount.current < 60 ? 1.0 : 0.0
+        // Step 3: Advect density
+        advectionMat.uniforms.uVelocity.value = velocity.read.texture
+        advectionMat.uniforms.uSource.value = density.read.texture
+        advectionMat.uniforms.uDissipation.value = 0.98
+        blit(advectionMat, density.write)
+        density.swap()
+
+        // Step 4: Compute divergence
+        divergenceMat.uniforms.uVelocity.value = velocity.read.texture
+        blit(divergenceMat, divergenceFBO)
+
+        // Step 5: Clear pressure
+        gl.setRenderTarget(pressure.read)
+        gl.clear()
+        gl.setRenderTarget(pressure.write)
+        gl.clear()
+
+        // Step 6: Solve pressure (Jacobi iterations)
+        pressureMat.uniforms.uDivergence.value = divergenceFBO.texture
+        for (let i = 0; i < 20; i++) {
+            pressureMat.uniforms.uPressure.value = pressure.read.texture
+            blit(pressureMat, pressure.write)
+            pressure.swap()
+        }
+
+        // Step 7: Subtract pressure gradient from velocity
+        gradientSubtractMat.uniforms.uPressure.value = pressure.read.texture
+        gradientSubtractMat.uniforms.uVelocity.value = velocity.read.texture
+        blit(gradientSubtractMat, velocity.write)
+        velocity.swap()
+
+        // Reset render target to screen
+        gl.setRenderTarget(null)
+
+        // Update display material
+        if (displayMeshRef.current) {
+            displayMeshRef.current.material.uniforms.uDensity.value = density.read.texture
+            displayMeshRef.current.material.uniforms.uVelocity.value = velocity.read.texture
         }
     })
 
     return (
-        <mesh>
+        <mesh ref={displayMeshRef}>
             <planeGeometry args={[2, 2]} />
             <shaderMaterial
-                ref={displayRef}
-                vertexShader={vertShader}
+                vertexShader={vertexShader}
                 fragmentShader={displayShader}
                 uniforms={{
-                    uTexture: { value: null },
-                    uDebug: { value: 1.0 }
+                    uDensity: { value: null },
+                    uVelocity: { value: null },
+                    uMode: { value: 0 },
                 }}
             />
         </mesh>
@@ -175,18 +240,28 @@ function Fluid({ mouseRef }) {
 }
 
 export default function FluidDemo() {
-    const mouseRef = useRef({ x: 0.5, y: 0.5, prevX: 0.5, prevY: 0.5, active: false })
+    const mouseRef = useRef({ x: 0.5, y: 0.5, active: false })
 
     useEffect(() => {
         const onMove = (e) => {
-            mouseRef.current.prevX = mouseRef.current.x
-            mouseRef.current.prevY = mouseRef.current.y
             mouseRef.current.x = e.clientX / window.innerWidth
-            mouseRef.current.y = 1.0 - e.clientY / window.innerHeight
+            mouseRef.current.y = 1 - e.clientY / window.innerHeight
             mouseRef.current.active = true
         }
+        const onLeave = () => { mouseRef.current.active = false }
+        const onDown = () => { mouseRef.current.active = true }
+        const onUp = () => { mouseRef.current.active = false }
+
         window.addEventListener('mousemove', onMove)
-        return () => window.removeEventListener('mousemove', onMove)
+        window.addEventListener('mouseleave', onLeave)
+        window.addEventListener('mousedown', onDown)
+        window.addEventListener('mouseup', onUp)
+        return () => {
+            window.removeEventListener('mousemove', onMove)
+            window.removeEventListener('mouseleave', onLeave)
+            window.removeEventListener('mousedown', onDown)
+            window.removeEventListener('mouseup', onUp)
+        }
     }, [])
 
     return (
@@ -200,17 +275,10 @@ export default function FluidDemo() {
             </div>
             <Canvas
                 orthographic
-                camera={{
-                    left: -1,
-                    right: 1,
-                    top: 1,
-                    bottom: -1,
-                    near: 0.1,
-                    far: 10,
-                    position: [0, 0, 5]
-                }}
+                camera={{ left: -1, right: 1, top: 1, bottom: -1, near: 0.1, far: 10, position: [0, 0, 5] }}
+                gl={{ preserveDrawingBuffer: true }}
             >
-                <Fluid mouseRef={mouseRef} />
+                <FluidSim mouseRef={mouseRef} />
             </Canvas>
         </div>
     )
