@@ -1,9 +1,9 @@
-import { Link } from 'react-router-dom'
-import { registry } from '@waterlystudios/creativeio'
+import Link from 'next/link'
+import { registry } from '@waterlystudios/creativeio/registry'
 
-export default function Gallery() {
+export default function HomePage() {
   return (
-    <div style={{ minHeight: '100vh', padding: '48px 24px', overflow: 'auto' }}>
+    <div style={{ minHeight: '100vh', padding: '48px 24px' }}>
       <h1 style={{ fontSize: 28, marginBottom: 8 }}>creativeio</h1>
       <p style={{ opacity: 0.7, marginBottom: 32 }}>
         A growing catalog of GPU shader components built on React Three Fiber.
@@ -19,7 +19,7 @@ export default function Gallery() {
         {registry.map((meta) => (
           <Link
             key={meta.id}
-            to={`/c/${meta.id}`}
+            href={`/c/${meta.id}`}
             style={{
               display: 'block',
               padding: 20,
@@ -27,6 +27,7 @@ export default function Gallery() {
               background: '#161616',
               border: '1px solid #2a2a2a',
               textDecoration: 'none',
+              color: 'inherit',
             }}
           >
             <div style={{ fontSize: 12, opacity: 0.5, marginBottom: 6 }}>{meta.category}</div>

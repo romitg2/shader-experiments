@@ -1,20 +1,16 @@
-import { Link, useParams } from 'react-router-dom'
-import { registry } from '@waterlystudios/creativeio'
+import Link from 'next/link'
+import { notFound } from 'next/navigation'
+import { registry } from '@waterlystudios/creativeio/registry'
+import { ComponentView } from './ComponentView'
 
-export default function ComponentPage() {
-  const { id } = useParams()
+export function generateStaticParams() {
+  return registry.map((meta) => ({ id: meta.id }))
+}
+
+export default async function ComponentPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const meta = registry.find((entry) => entry.id === id)
-
-  if (!meta) {
-    return (
-      <div style={{ padding: 24 }}>
-        <p>No component named "{id}".</p>
-        <Link to="/">Back to gallery</Link>
-      </div>
-    )
-  }
-
-  const { Component } = meta
+  if (!meta) notFound()
 
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
@@ -39,7 +35,7 @@ export default function ComponentPage() {
       </div>
 
       <Link
-        to="/"
+        href="/"
         style={{
           position: 'absolute',
           top: 20,
@@ -56,7 +52,7 @@ export default function ComponentPage() {
         ← Gallery
       </Link>
 
-      <Component style={{ width: '100%', height: '100%' }} />
+      <ComponentView id={id} />
     </div>
   )
 }

@@ -1,2 +1,2 @@
 export { Fluid, type FluidProps } from './Fluid'
-export { fluidMeta } from './meta'
+export { fluidInfo } from './meta'
