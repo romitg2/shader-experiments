@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { registry } from '@waterlystudios/creativeio/registry'
-import { ComponentView } from './ComponentView'
+import { ComponentPreview } from '../../components/ComponentPreview'
 
 export function generateStaticParams() {
   return registry.map((meta) => ({ id: meta.id }))
@@ -52,7 +52,7 @@ export default async function ComponentPage({ params }: { params: Promise<{ id: 
         ← Gallery
       </Link>
 
-      <ComponentView id={id} />
+      <ComponentPreview id={id} />
     </div>
   )
 }

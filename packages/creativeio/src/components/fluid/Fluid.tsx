@@ -235,11 +235,16 @@ export function Fluid({
   pressureIterations = 20,
 }: FluidProps) {
   const mouseRef = useRef<MouseState>({ x: 0.5, y: 0.5, active: false })
+  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const onMove = (e: MouseEvent) => {
-      mouseRef.current.x = e.clientX / window.innerWidth
-      mouseRef.current.y = 1 - e.clientY / window.innerHeight
+    const el = containerRef.current
+    if (!el) return
+
+    const onMove = (e: PointerEvent) => {
+      const rect = el.getBoundingClientRect()
+      mouseRef.current.x = (e.clientX - rect.left) / rect.width
+      mouseRef.current.y = 1 - (e.clientY - rect.top) / rect.height
       mouseRef.current.active = true
     }
     const onLeave = () => {
@@ -252,20 +257,24 @@ export function Fluid({
       mouseRef.current.active = false
     }
 
-    window.addEventListener('mousemove', onMove)
-    window.addEventListener('mouseleave', onLeave)
-    window.addEventListener('mousedown', onDown)
-    window.addEventListener('mouseup', onUp)
+    el.addEventListener('pointermove', onMove)
+    el.addEventListener('pointerleave', onLeave)
+    el.addEventListener('pointerdown', onDown)
+    el.addEventListener('pointerup', onUp)
     return () => {
-      window.removeEventListener('mousemove', onMove)
-      window.removeEventListener('mouseleave', onLeave)
-      window.removeEventListener('mousedown', onDown)
-      window.removeEventListener('mouseup', onUp)
+      el.removeEventListener('pointermove', onMove)
+      el.removeEventListener('pointerleave', onLeave)
+      el.removeEventListener('pointerdown', onDown)
+      el.removeEventListener('pointerup', onUp)
     }
   }, [])
 
   return (
-    <div className={className} style={{ width: '100%', height: '100%', background: '#000', ...style }}>
+    <div
+      ref={containerRef}
+      className={className}
+      style={{ width: '100%', height: '100%', background: '#000', ...style }}
+    >
       <Canvas
         orthographic
         camera={{ left: -1, right: 1, top: 1, bottom: -1, near: 0.1, far: 10, position: [0, 0, 5] }}
