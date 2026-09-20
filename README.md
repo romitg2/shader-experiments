@@ -1,66 +1,107 @@
-# Shader Experiments
+# creativeio
 
-A collection of WebGL shader experiments using React Three Fiber.
+A monorepo (pnpm + Turborepo) housing **`@waterlystudios/creativeio`**, a growing
+library of React Three Fiber / GLSL shader components, and a gallery app that
+showcases them.
 
-## Experiments
+```
+apps/
+└── web/                # gallery site, consumes creativeio like any other user would
+packages/
+└── creativeio/          # the published library (@waterlystudios/creativeio)
+```
 
-### 1. Fluid Simulation
-Interactive smoke/fluid simulation using GPU texture feedback.
-
-![Fluid Demo](docs/fluid-demo.gif)
-
-**Techniques:**
-- Ping-pong buffers for state persistence
-- Advection (moving fluid along velocity)
-- Pressure solver (Jacobi iteration)
-- Incompressibility (gradient subtraction)
-
-## Getting Started
+## Getting started
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev      # runs the library in watch mode + the gallery dev server (via turbo)
 ```
 
-## Project Structure
+Open the gallery at the printed Vite URL, click into a component to see it full-screen.
 
-```
-src/
-├── fluid/
-│   ├── FluidDemo.jsx          # Main component
-│   └── shaders/
-│       ├── advection.glsl     # Move quantities along velocity
-│       ├── splat.glsl         # Add force/density at mouse
-│       ├── divergence.glsl    # Compute flow divergence
-│       ├── pressure.glsl      # Jacobi pressure solver
-│       ├── gradientSubtract.glsl  # Make incompressible
-│       ├── display.glsl       # Render to screen
-│       └── vertex.glsl        # Basic vertex shader
-└── App.jsx
+```bash
+pnpm build    # builds the library, then the gallery site
+pnpm lint     # oxlint across every workspace
 ```
 
-## Documentation
+## Using the library standalone
 
-See [docs/GPU_TEXTURE_FEEDBACK_PATTERNS.md](docs/GPU_TEXTURE_FEEDBACK_PATTERNS.md) for a comprehensive guide on:
+```bash
+npm install @waterlystudios/creativeio
+```
 
-- **Smoke/Fluid** - Velocity + density advection
-- **Flow Fields** - Particle systems following vector fields
-- **Reaction-Diffusion** - Organic pattern generation (Gray-Scott)
-- **Water Ripples** - Wave equation simulation
-- **Trails/Ribbons** - Persistence effects
-- **Cellular Automata** - Game of Life and variations
-- **Erosion** - Terrain simulation
+`react`, `react-dom`, `three`, and `@react-three/fiber` are regular dependencies of
+the package, so they install automatically — no separate peer-dependency setup
+required.
 
-## Tech Stack
+```jsx
+import { Fluid } from '@waterlystudios/creativeio'
+
+function App() {
+  return <Fluid style={{ width: '100vw', height: '100vh' }} />
+}
+```
+
+Every component also has a metadata entry in the exported `registry`, useful if
+you want to build your own catalog/browser against the library:
+
+```js
+import { registry } from '@waterlystudios/creativeio'
+
+registry.forEach(({ id, name, category, description }) => {
+  console.log(id, name, category, description)
+})
+```
+
+## Components
+
+| Component | id | Category |
+| --- | --- | --- |
+| Fluid Simulation | `fluid` | smoke-fluid |
+
+More on the way — flow fields, reaction-diffusion, water ripples, trails, cellular
+automata, erosion. See [`docs/GPU_TEXTURE_FEEDBACK_PATTERNS.md`](docs/GPU_TEXTURE_FEEDBACK_PATTERNS.md)
+for the underlying GPU texture-feedback techniques these are built from.
+
+## Adding a new component
+
+Each component lives in its own folder under `packages/creativeio/src/components/<slug>/`:
+
+```
+components/<slug>/
+├── <Name>.tsx      # the component itself
+├── shaders/*.glsl  # colocated GLSL source
+├── meta.ts         # { id, name, category, tags, description, Component }
+└── index.ts        # re-exports <Name> + meta
+```
+
+Reuse the shared GPU helpers in `packages/creativeio/src/lib/` (`fbo.ts` for
+ping-pong render targets, `blit.ts` for rendering a material into a target)
+instead of reimplementing them — everything else about the component (uniforms,
+shader logic, props) is free to be entirely custom.
+
+Then wire it in exactly two places:
+
+1. `packages/creativeio/src/registry.ts` — import the new `meta` and add it to
+   the `registry` array.
+2. `packages/creativeio/src/index.ts` — re-export the new component.
+
+The gallery app (`apps/web`) needs no changes — its `Gallery` page renders
+whatever is in `registry`.
+
+## Publishing the library
+
+```bash
+pnpm --filter @waterlystudios/creativeio build
+pnpm --filter @waterlystudios/creativeio publish --access public
+```
+
+## Tech stack
 
 - React + Vite
 - Three.js / React Three Fiber
-- GLSL Shaders
-- vite-plugin-glsl
-
-## Resources
-
-- [The Book of Shaders](https://thebookofshaders.com/)
-- [Shadertoy](https://shadertoy.com)
-- [GPU Gems - Fluid Dynamics](https://developer.nvidia.com/gpugems/gpugems/part-vi-beyond-triangles/chapter-38-fast-fluid-dynamics-simulation-gpu)
-- Jos Stam's "Stable Fluids" (1999)
+- GLSL shaders (inlined into the library's build output via tsup/esbuild — no
+  loader config required downstream)
+- pnpm workspaces + Turborepo
+- TypeScript (library), tsup for bundling + type declarations

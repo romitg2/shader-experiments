@@ -1,0 +1,39 @@
+{
+  "name": "@waterlystudios/creativeio",
+  "version": "0.1.0",
+  "description": "React/R3F GPU shader components (fluid, and more to come)",
+  "type": "module",
+  "license": "MIT",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "oxlint -c ../../.oxlintrc.json ."
+  },
+  "dependencies": {
+    "@react-three/fiber": "^9.7.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "three": "^0.186.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@types/three": "^0.186.0",
+    "oxlint": "^1.81.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.3"
+  }
+}

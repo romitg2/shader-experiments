@@ -11,6 +11,8 @@ node_modules
 dist
 dist-ssr
 *.local
+.turbo
+pnpm-debug.log*
 
 # Editor directories and files
 .vscode/*
