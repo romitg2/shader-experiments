@@ -3,11 +3,10 @@ varying vec2 vUv;
 uniform float uTime;
 uniform vec2 uResolution;
 uniform vec2 uMouse;
-uniform float uMouseInfluence;
+uniform float uMouseRadius;
 uniform vec3 uColorA;
 uniform vec3 uColorB;
 uniform vec3 uColorC;
-uniform vec3 uColorD;
 
 // 2D simplex noise (Ashima Arts, MIT) — the standard baseline used across
 // most creative-coding noise shaders.
@@ -52,28 +51,25 @@ float fbm(vec2 p) {
 }
 
 void main() {
-    vec2 aspectUv = (vUv - 0.5) * vec2(uResolution.x / uResolution.y, 1.0) + 0.5;
+    vec2 aspect = vec2(uResolution.x / uResolution.y, 1.0);
+    vec2 aspectUv = (vUv - 0.5) * aspect + 0.5;
 
-    vec2 mouseOffset = (uMouse - 0.5) * uMouseInfluence;
-    // Low base frequency -> a few large soft shapes instead of dense marbling.
-    vec2 p = aspectUv * 0.8 + mouseOffset;
-
+    // Ambient base: two colors slowly morphing into each other via a
+    // domain-warped noise field. Always animating, independent of the mouse.
+    vec2 p = aspectUv * 0.8;
     float t = uTime * 0.08;
-
-    // Domain warp: distort the sampling coordinates with noise before
-    // sampling noise again, which is what gives this its organic,
-    // slowly-morphing "mesh gradient" look instead of static noise. Kept
-    // gentle so it drifts rather than churns.
     vec2 warp = vec2(fbm(p + t), fbm(p - t + 4.2));
-    float n1 = fbm(p + warp * 0.35);
-    float n2 = fbm(p * 1.1 - warp * 0.3 + 8.3);
+    float n = fbm(p + warp * 0.35);
+    vec3 col = mix(uColorA, uColorB, smoothstep(-0.9, 0.9, n));
 
-    float mixA = smoothstep(-0.9, 0.9, n1);
-    float mixB = smoothstep(-0.9, 0.9, n2);
-
-    vec3 col = mix(uColorA, uColorB, mixA);
-    col = mix(col, uColorC, mixB * 0.6);
-    col = mix(col, uColorD, smoothstep(0.3, 0.9, n1 * n2 + 0.3));
+    // Mouse spotlight: the third color glows around the cursor, with its own
+    // soft noise-warped edge so it reads as part of the same fluid gradient
+    // rather than a flat circle stamped on top.
+    vec2 mouseAspect = (uMouse - 0.5) * aspect + 0.5;
+    float dist = distance(aspectUv, mouseAspect);
+    float edgeWobble = fbm(aspectUv * 3.0 + t * 2.0) * 0.08;
+    float glow = smoothstep(uMouseRadius + edgeWobble, 0.0, dist);
+    col = mix(col, uColorC, glow);
 
     gl_FragColor = vec4(col, 1.0);
 }

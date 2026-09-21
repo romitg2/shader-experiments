@@ -9,7 +9,7 @@ export const gradientInfo: ComponentInfo = {
   id: 'gradient',
   name: 'Animated Gradient',
   category: 'backgrounds',
-  tags: ['webgl', 'gradient', 'noise', 'background', 'ambient'],
+  tags: ['webgl', 'gradient', 'noise', 'background', 'interactive', 'mouse'],
   description:
-    'Domain-warped simplex-noise gradient, continuously animated and subtly reactive to the pointer — a classic generative-shader technique for mesh-gradient backgrounds.',
+    'Three-color animated mesh gradient with a glowing accent-color spotlight that follows the pointer, all blended through domain-warped simplex noise. Move the mouse to drag the third color around.',
 }

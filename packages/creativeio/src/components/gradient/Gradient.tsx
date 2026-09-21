@@ -13,13 +13,13 @@ interface MouseState {
 
 interface GradientPlaneProps {
   mouseRef: RefObject<MouseState>
-  colors: [string, string, string, string]
+  colors: [string, string, string]
   speed: number
-  mouseInfluence: number
+  mouseRadius: number
   idle: boolean
 }
 
-function GradientPlane({ mouseRef, colors, speed, mouseInfluence, idle }: GradientPlaneProps) {
+function GradientPlane({ mouseRef, colors, speed, mouseRadius, idle }: GradientPlaneProps) {
   const { size } = useThree()
 
   const uniforms = useMemo(
@@ -27,13 +27,12 @@ function GradientPlane({ mouseRef, colors, speed, mouseInfluence, idle }: Gradie
       uTime: { value: 0 },
       uResolution: { value: new THREE.Vector2(1, 1) },
       uMouse: { value: new THREE.Vector2(0.5, 0.5) },
-      uMouseInfluence: { value: mouseInfluence },
+      uMouseRadius: { value: mouseRadius },
       uColorA: { value: new THREE.Color(colors[0]) },
       uColorB: { value: new THREE.Color(colors[1]) },
       uColorC: { value: new THREE.Color(colors[2]) },
-      uColorD: { value: new THREE.Color(colors[3]) },
     }),
-    [colors, mouseInfluence],
+    [colors, mouseRadius],
   )
 
   useFrame((state) => {
@@ -45,9 +44,9 @@ function GradientPlane({ mouseRef, colors, speed, mouseInfluence, idle }: Gradie
     if (m.active) {
       uniforms.uMouse.value.set(m.x, m.y)
     } else if (idle) {
-      // Same idea as Fluid's idle drift: keep it visually alive with a
-      // gentle synthetic wander whenever nobody's actually hovering it.
-      uniforms.uMouse.value.set(0.5 + Math.sin(t * 0.15) * 0.4, 0.5 + Math.cos(t * 0.12) * 0.4)
+      // Same idea as Fluid's idle drift: keep the spotlight visually alive
+      // with a gentle synthetic wander whenever nobody's actually hovering.
+      uniforms.uMouse.value.set(0.5 + Math.sin(t * 0.25) * 0.4, 0.5 + Math.cos(t * 0.2) * 0.4)
     } else {
       uniforms.uMouse.value.set(0.5, 0.5)
     }
@@ -64,24 +63,24 @@ function GradientPlane({ mouseRef, colors, speed, mouseInfluence, idle }: Gradie
 export interface GradientProps {
   className?: string
   style?: CSSProperties
-  /** Four colors the noise field blends between. */
-  colors?: [string, string, string, string]
-  /** Animation speed multiplier. */
+  /** Three colors: base, base-blend-target, and the mouse-spotlight accent. */
+  colors?: [string, string, string]
+  /** Animation speed multiplier for the ambient base gradient. */
   speed?: number
-  /** How much the pointer position offsets the noise sampling (0 = no reaction). */
-  mouseInfluence?: number
+  /** Radius (in aspect-corrected UV units, ~0-1) of the glow around the pointer. */
+  mouseRadius?: number
   /** Drive a gentle synthetic drift while there's no real pointer interaction. */
   idle?: boolean
 }
 
-const DEFAULT_COLORS: [string, string, string, string] = ['#1e1b4b', '#7c3aed', '#db2777', '#06b6d4']
+const DEFAULT_COLORS: [string, string, string] = ['#0f0c29', '#5b21b6', '#22d3ee']
 
 export function Gradient({
   className,
   style,
   colors = DEFAULT_COLORS,
   speed = 1,
-  mouseInfluence = 0.2,
+  mouseRadius = 0.4,
   idle = true,
 }: GradientProps) {
   const mouseRef = useRef<MouseState>({ x: 0.5, y: 0.5, active: false })
@@ -119,7 +118,7 @@ export function Gradient({
         orthographic
         camera={{ left: -1, right: 1, top: 1, bottom: -1, near: 0.1, far: 10, position: [0, 0, 5] }}
       >
-        <GradientPlane mouseRef={mouseRef} colors={colors} speed={speed} mouseInfluence={mouseInfluence} idle={idle} />
+        <GradientPlane mouseRef={mouseRef} colors={colors} speed={speed} mouseRadius={mouseRadius} idle={idle} />
       </Canvas>
     </div>
   )
