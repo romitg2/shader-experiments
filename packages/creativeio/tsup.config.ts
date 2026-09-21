@@ -9,7 +9,7 @@ export default defineConfig([
     dts: true,
     sourcemap: true,
     clean: true,
-    external: ['react', 'react-dom', 'three', '@react-three/fiber'],
+    external: ['react', 'react-dom', 'three', '@react-three/fiber', '@react-three/drei', 'gsap'],
     esbuildOptions(options) {
       options.loader = { ...options.loader, '.glsl': 'text' }
     },

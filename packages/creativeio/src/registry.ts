@@ -1,6 +1,9 @@
 import type { ComponentInfo } from './lib/types'
 import { fluidInfo } from './components/fluid/meta'
 import { gradientInfo } from './components/gradient/meta'
+import { imageTransitionInfo } from './components/image-transition/meta'
+import { checkerboardTextInfo } from './components/checkerboard-text/meta'
+import { hoverDistortionInfo } from './components/hover-distortion/meta'
 
 /**
  * Server-safe catalog: metadata only, no component references. Published as
@@ -12,6 +15,12 @@ import { gradientInfo } from './components/gradient/meta'
  * Adding a new component means adding its info import + array entry here,
  * and a re-export in index.ts — nothing else in this file changes.
  */
-export const registry: ComponentInfo[] = [fluidInfo, gradientInfo]
+export const registry: ComponentInfo[] = [
+  imageTransitionInfo,
+  fluidInfo,
+  gradientInfo,
+  checkerboardTextInfo,
+  hoverDistortionInfo,
+]
 
 export type { ComponentInfo } from './lib/types'

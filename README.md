@@ -71,10 +71,21 @@ registry.forEach(({ id, name, category, description }) => {
 | --- | --- | --- |
 | Fluid Simulation | `fluid` | smoke-fluid |
 | Animated Gradient | `gradient` | backgrounds |
+| WebGL Image Transition | `image-transition` | transitions |
+| Checkerboard Text Reveal | `checkerboard-text` | text-effects |
+| Hover Distortion Card | `hover-distortion` | hover-effects |
 
 More on the way — flow fields, reaction-diffusion, water ripples, trails, cellular
 automata, erosion. See [`docs/GPU_TEXTURE_FEEDBACK_PATTERNS.md`](docs/GPU_TEXTURE_FEEDBACK_PATTERNS.md)
 for the underlying GPU texture-feedback techniques these are built from.
+
+**Uniform-mutation gotcha:** always mutate a `<shaderMaterial>`'s uniforms by
+reading `.uniforms` off the live material via a ref inside `useFrame`
+(`meshRef.current.material.uniforms.x.value = ...`), not by holding a
+separate `useMemo`'d uniforms object in closure and mutating that. The
+latter silently stops propagating to the GPU after the first frame in this
+stack (React 19 + R3F 9 + Next.js production build) — every component here
+follows the ref pattern for exactly this reason.
 
 ## Adding a new component
 
