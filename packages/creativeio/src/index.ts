@@ -3,13 +3,16 @@
 import type { ComponentType } from 'react'
 import type { ComponentMeta } from './lib/types'
 import { Fluid, fluidInfo } from './components/fluid'
+import { Gradient, gradientInfo } from './components/gradient'
 
 export { Fluid, type FluidProps } from './components/fluid'
+export { Gradient, type GradientProps } from './components/gradient'
 export type { ComponentMeta } from './lib/types'
 
 /** id -> component, for looking up which component to render by registry id. */
 export const components: Record<string, ComponentType<any>> = {
   fluid: Fluid,
+  gradient: Gradient,
 }
 
 /**
@@ -18,4 +21,7 @@ export const components: Record<string, ComponentType<any>> = {
  * should prefer the metadata-only `@waterlystudios/creativeio/registry`
  * subpath for listing pages, and use `components` above to render.
  */
-export const registry: ComponentMeta[] = [{ ...fluidInfo, Component: Fluid }]
+export const registry: ComponentMeta[] = [
+  { ...fluidInfo, Component: Fluid },
+  { ...gradientInfo, Component: Gradient },
+]

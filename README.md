@@ -70,6 +70,7 @@ registry.forEach(({ id, name, category, description }) => {
 | Component | id | Category |
 | --- | --- | --- |
 | Fluid Simulation | `fluid` | smoke-fluid |
+| Animated Gradient | `gradient` | backgrounds |
 
 More on the way — flow fields, reaction-diffusion, water ripples, trails, cellular
 automata, erosion. See [`docs/GPU_TEXTURE_FEEDBACK_PATTERNS.md`](docs/GPU_TEXTURE_FEEDBACK_PATTERNS.md)
