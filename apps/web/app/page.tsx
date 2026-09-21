@@ -1,8 +1,11 @@
 import Link from 'next/link'
 import { registry } from '@waterlystudios/creativeio/registry'
 import { ComponentPreview } from './components/ComponentPreview'
+import { groupByCategory } from './lib/categories'
 
 export default function LandingPage() {
+  const sections = groupByCategory(registry)
+
   return (
     <div style={{ minHeight: '100vh' }}>
       <header
@@ -81,21 +84,23 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px 96px' }}>
-        <div className="uniform-grid">
-          {registry.map((meta) => (
-            <Link key={meta.id} href={`/c/${meta.id}`} className="grid-card">
-              <div className="grid-card-media">
-                <ComponentPreview id={meta.id} />
-              </div>
-              <div className="grid-label">
-                <span>{meta.name}</span>
-                <span className="grid-badge">{meta.category}</span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
+      {sections.map((section) => (
+        <section key={section.category} style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px 72px' }}>
+          <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 20 }}>{section.label}</h2>
+          <div className="uniform-grid">
+            {section.items.map((meta) => (
+              <Link key={meta.id} href={`/c/${meta.id}`} className="grid-card">
+                <div className="grid-card-media">
+                  <ComponentPreview id={meta.id} />
+                </div>
+                <div className="grid-label">
+                  <span>{meta.name}</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ))}
 
       <footer
         style={{

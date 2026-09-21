@@ -8,7 +8,14 @@ export default defineConfig([
     format: ['esm', 'cjs'],
     dts: true,
     sourcemap: true,
-    clean: true,
+    // Cleaning happens once, up front, via the `build`/`dev` npm scripts —
+    // NOT here. tsup runs every entry in this array concurrently, and
+    // `clean: true` wipes the *entire* dist/ folder (not just this entry's
+    // own output), racing against the registry entry below. Depending on
+    // timing that could delete registry.d.ts right after it was written,
+    // silently breaking `@waterlystudios/creativeio/registry`'s types for
+    // consumers until the next lucky-timed rebuild.
+    clean: false,
     external: ['react', 'react-dom', 'three', '@react-three/fiber', '@react-three/drei', 'gsap'],
     esbuildOptions(options) {
       options.loader = { ...options.loader, '.glsl': 'text' }
