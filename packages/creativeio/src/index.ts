@@ -7,6 +7,7 @@ import { Gradient, gradientInfo } from './components/gradient'
 import { WebGLImageTransition, imageTransitionInfo } from './components/image-transition'
 import { CheckerboardTextTransition, checkerboardTextInfo } from './components/checkerboard-text'
 import { HoverDistortionCard, hoverDistortionInfo } from './components/hover-distortion'
+import { ColorSmoke, colorSmokeInfo } from './components/color-smoke'
 
 export { Fluid, type FluidProps } from './components/fluid'
 export { Gradient, type GradientProps } from './components/gradient'
@@ -17,6 +18,7 @@ export {
 } from './components/image-transition'
 export { CheckerboardTextTransition, type CheckerboardTextTransitionProps } from './components/checkerboard-text'
 export { HoverDistortionCard, type HoverDistortionCardProps } from './components/hover-distortion'
+export { ColorSmoke, type ColorSmokeProps } from './components/color-smoke'
 export type { ComponentMeta } from './lib/types'
 
 /** id -> component, for looking up which component to render by registry id. */
@@ -26,6 +28,7 @@ export const components: Record<string, ComponentType<any>> = {
   'image-transition': WebGLImageTransition,
   'checkerboard-text': CheckerboardTextTransition,
   'hover-distortion': HoverDistortionCard,
+  'color-smoke': ColorSmoke,
 }
 
 /**
@@ -40,4 +43,5 @@ export const registry: ComponentMeta[] = [
   { ...imageTransitionInfo, Component: WebGLImageTransition },
   { ...checkerboardTextInfo, Component: CheckerboardTextTransition },
   { ...hoverDistortionInfo, Component: HoverDistortionCard },
+  { ...colorSmokeInfo, Component: ColorSmoke },
 ]

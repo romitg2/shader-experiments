@@ -1,7 +1,6 @@
 uniform sampler2D uTexture;
-uniform vec2 uMouse;
+uniform sampler2D uVelocity;
 uniform float uIntensity;
-uniform float uRadius;
 uniform vec2 uResolution;
 uniform vec2 uImageSize;
 varying vec2 vUv;
@@ -15,19 +14,14 @@ vec2 coverUv(vec2 uv, vec2 imgSize) {
 }
 
 void main() {
-    float aspect = uResolution.x / uResolution.y;
-
-    // Correct for a non-square canvas so the influence area reads as a
-    // circle around the cursor, not a squashed ellipse.
-    vec2 diff = vUv - uMouse;
-    diff.x *= aspect;
-
-    float dist = length(diff);
-    float falloff = smoothstep(uRadius, 0.0, dist);
-    vec2 dir = dist > 0.0001 ? diff / dist : vec2(0.0);
-    dir.x /= aspect;
-
-    vec2 displacement = dir * falloff * uIntensity * 0.15;
+    // The velocity field is a real (lightweight) fluid sim — splatted at the
+    // pointer, self-advected, pressure-projected for incompressibility, and
+    // dissipating over time — so this reads its flow directly as the UV
+    // displacement instead of computing an instantaneous analytic falloff.
+    // That's what gives it a flowing, swirling, trailing quality rather than
+    // a single blob that snaps to the cursor.
+    vec2 vel = texture2D(uVelocity, vUv).xy;
+    vec2 displacement = vel * uIntensity;
     vec2 uv = coverUv(vUv - displacement, uImageSize);
 
     gl_FragColor = texture2D(uTexture, uv);

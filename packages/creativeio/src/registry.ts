@@ -4,6 +4,7 @@ import { gradientInfo } from './components/gradient/meta'
 import { imageTransitionInfo } from './components/image-transition/meta'
 import { checkerboardTextInfo } from './components/checkerboard-text/meta'
 import { hoverDistortionInfo } from './components/hover-distortion/meta'
+import { colorSmokeInfo } from './components/color-smoke/meta'
 
 /**
  * Server-safe catalog: metadata only, no component references. Published as
@@ -21,6 +22,7 @@ export const registry: ComponentInfo[] = [
   gradientInfo,
   checkerboardTextInfo,
   hoverDistortionInfo,
+  colorSmokeInfo,
 ]
 
 export type { ComponentInfo } from './lib/types'

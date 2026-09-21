@@ -1,43 +1,48 @@
 import { useRef, useMemo, type CSSProperties, type RefObject } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import { useDisposableTexture } from '../../lib/useTexture'
-import { usePointerTracking, type PointerState } from '../../lib/usePointer'
 import { createDoubleFBO } from '../../lib/fbo'
 import { blit } from '../../lib/blit'
+import { usePointerTracking, type PointerState } from '../../lib/usePointer'
 
 import vertexShader from './shaders/vertex.glsl'
-import fragmentShader from './shaders/distortion.glsl'
 import advectionShader from './shaders/advection.glsl'
 import splatShader from './shaders/splat.glsl'
 import divergenceShader from './shaders/divergence.glsl'
 import pressureShader from './shaders/pressure.glsl'
 import gradientSubtractShader from './shaders/gradientSubtract.glsl'
+import displayShader from './shaders/display.glsl'
 
-interface DistortionPlaneProps {
+interface ColorSmokeSimProps {
   pointerRef: RefObject<PointerState>
-  texture: THREE.Texture
-  intensity: number
-  radius: number
   simResolution: number
+  velocityDissipation: number
+  densityDissipation: number
   pressureIterations: number
+  hueSpeed: number
+  saturation: number
+  lightness: number
 }
 
-function DistortionPlane({ pointerRef, texture, intensity, radius, simResolution, pressureIterations }: DistortionPlaneProps) {
-  const { gl, size } = useThree()
-  const meshRef = useRef<THREE.Mesh>(null)
-  const prevPointer = useRef({ x: 0.5, y: 0.5 })
+function ColorSmokeSim({
+  pointerRef,
+  simResolution,
+  velocityDissipation,
+  densityDissipation,
+  pressureIterations,
+  hueSpeed,
+  saturation,
+  lightness,
+}: ColorSmokeSimProps) {
+  const { gl } = useThree()
 
-  // A real (lightweight) fluid velocity sim — no density/smoke rendering,
-  // just the velocity field itself — splatted at the pointer, self-advected,
-  // and pressure-projected for incompressibility, exactly like Fluid's
-  // velocity pipeline. Using its actual flow as the UV displacement is what
-  // gives the distortion a swirling, trailing quality instead of an
-  // instantaneous analytic bump that snaps to the cursor.
   const simScene = useMemo(() => new THREE.Scene(), [])
   const simCamera = useMemo(() => new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1), [])
   const quadGeom = useMemo(() => new THREE.PlaneGeometry(2, 2), [])
+
   const velocity = useMemo(() => createDoubleFBO(simResolution, simResolution), [simResolution])
+  const density = useMemo(() => createDoubleFBO(simResolution, simResolution), [simResolution])
+  const pressure = useMemo(() => createDoubleFBO(simResolution, simResolution), [simResolution])
   const divergenceFBO = useMemo(
     () =>
       new THREE.WebGLRenderTarget(simResolution, simResolution, {
@@ -49,7 +54,6 @@ function DistortionPlane({ pointerRef, texture, intensity, radius, simResolution
       }),
     [simResolution],
   )
-  const pressure = useMemo(() => createDoubleFBO(simResolution, simResolution), [simResolution])
 
   const advectionMat = useMemo(
     () =>
@@ -60,7 +64,7 @@ function DistortionPlane({ pointerRef, texture, intensity, radius, simResolution
           uVelocity: { value: null },
           uSource: { value: null },
           uDt: { value: 0.016 },
-          uDissipation: { value: 0.97 },
+          uDissipation: { value: 0.99 },
           uResolution: { value: new THREE.Vector2(simResolution, simResolution) },
         },
       }),
@@ -76,7 +80,7 @@ function DistortionPlane({ pointerRef, texture, intensity, radius, simResolution
           uTarget: { value: null },
           uPoint: { value: new THREE.Vector2(0.5, 0.5) },
           uColor: { value: new THREE.Vector3(0, 0, 0) },
-          uRadius: { value: 0.001 },
+          uRadius: { value: 0.0005 },
           uResolution: { value: new THREE.Vector2(simResolution, simResolution) },
         },
       }),
@@ -130,34 +134,53 @@ function DistortionPlane({ pointerRef, texture, intensity, radius, simResolution
     return mesh
   }, [quadGeom, advectionMat, simScene])
 
-  useFrame((_state, delta) => {
+  const displayMeshRef = useRef<THREE.Mesh>(null)
+  const prevPointer = useRef({ x: 0.5, y: 0.5 })
+  const splatColor = useRef(new THREE.Color())
+
+  useFrame((state, delta) => {
     const p = pointerRef.current
     const dt = Math.min(delta, 0.033)
 
     if (p.active) {
-      const dx = (p.x - prevPointer.current.x) * 15
-      const dy = (p.y - prevPointer.current.y) * 15
+      const dx = (p.x - prevPointer.current.x) * 10
+      const dy = (p.y - prevPointer.current.y) * 10
 
       splatMat.uniforms.uTarget.value = velocity.read.texture
       splatMat.uniforms.uPoint.value.set(p.x, p.y)
-      splatMat.uniforms.uColor.value.set(dx, dy, 0)
-      splatMat.uniforms.uRadius.value = Math.max(radius * 0.01, 0.0005)
+      splatMat.uniforms.uColor.value.set(dx * 50, dy * 50, 0)
+      splatMat.uniforms.uRadius.value = 0.001
       blit(gl, simScene, simCamera, quadMesh, splatMat, velocity.write)
       velocity.swap()
+
+      // Whatever hue is "in rotation" right now becomes this splat's color —
+      // different moments of movement paint different colors, so a sweeping
+      // gesture leaves a rainbow-ish trail rather than a single flat tint.
+      const hue = (state.clock.elapsedTime * hueSpeed) % 360
+      splatColor.current.setHSL(hue / 360, saturation, lightness)
+      splatMat.uniforms.uTarget.value = density.read.texture
+      splatMat.uniforms.uColor.value.set(splatColor.current.r, splatColor.current.g, splatColor.current.b)
+      splatMat.uniforms.uRadius.value = 0.0012
+      blit(gl, simScene, simCamera, quadMesh, splatMat, density.write)
+      density.swap()
     }
 
     prevPointer.current.x = p.x
     prevPointer.current.y = p.y
 
-    // Self-advect + dissipate the velocity field.
     advectionMat.uniforms.uVelocity.value = velocity.read.texture
     advectionMat.uniforms.uSource.value = velocity.read.texture
     advectionMat.uniforms.uDt.value = dt * 60
+    advectionMat.uniforms.uDissipation.value = velocityDissipation
     blit(gl, simScene, simCamera, quadMesh, advectionMat, velocity.write)
     velocity.swap()
 
-    // Pressure projection: make the field divergence-free so it swirls and
-    // curls around obstacles/itself instead of just radiating outward.
+    advectionMat.uniforms.uVelocity.value = velocity.read.texture
+    advectionMat.uniforms.uSource.value = density.read.texture
+    advectionMat.uniforms.uDissipation.value = densityDissipation
+    blit(gl, simScene, simCamera, quadMesh, advectionMat, density.write)
+    density.swap()
+
     divergenceMat.uniforms.uVelocity.value = velocity.read.texture
     blit(gl, simScene, simCamera, quadMesh, divergenceMat, divergenceFBO)
 
@@ -180,87 +203,83 @@ function DistortionPlane({ pointerRef, texture, intensity, radius, simResolution
 
     gl.setRenderTarget(null)
 
-    const mat = meshRef.current?.material as THREE.ShaderMaterial | undefined
+    const mat = displayMeshRef.current?.material as THREE.ShaderMaterial | undefined
     if (mat) {
-      mat.uniforms.uVelocity.value = velocity.read.texture
-      mat.uniforms.uIntensity.value = intensity
-      mat.uniforms.uResolution.value.set(size.width, size.height)
-      mat.uniforms.uTexture.value = texture
-      const img = texture.image as HTMLImageElement
-      mat.uniforms.uImageSize.value.set(img.width, img.height)
+      mat.uniforms.uDensity.value = density.read.texture
     }
   })
 
   return (
-    <mesh ref={meshRef}>
+    <mesh ref={displayMeshRef}>
       <planeGeometry args={[2, 2]} />
       <shaderMaterial
         vertexShader={vertexShader}
-        fragmentShader={fragmentShader}
+        fragmentShader={displayShader}
         uniforms={{
-          uTexture: { value: null },
-          uVelocity: { value: null },
-          uIntensity: { value: 0 },
-          uResolution: { value: new THREE.Vector2(1, 1) },
-          uImageSize: { value: new THREE.Vector2(1, 1) },
+          uDensity: { value: null },
         }}
       />
     </mesh>
   )
 }
 
-export interface HoverDistortionCardProps {
+export interface ColorSmokeProps {
   className?: string
   style?: CSSProperties
-  image?: string
-  /** Strength of the displacement force while the pointer is actively moving. */
-  intensity?: number
-  /** Radius of the velocity splat injected at the cursor — larger values move more of the field at once. */
-  radius?: number
-  /** Resolution (per axis) of the internal fluid sim grid. Higher = smoother flow but more expensive. */
+  /** Resolution (per axis) of the simulation grid. Higher = sharper but more expensive. */
   simResolution?: number
-  /** Jacobi iterations for the pressure solve. Higher = more accurate incompressibility, more expensive. */
+  /** How quickly velocity fades out each frame (0-1, closer to 1 = less friction). */
+  velocityDissipation?: number
+  /** How quickly the smoke fades out each frame (0-1). */
+  densityDissipation?: number
+  /** Jacobi iterations for the pressure solve. Higher = more accurate, more expensive. */
   pressureIterations?: number
+  /** Degrees per second the injected hue rotates through — higher cycles colors faster across a single gesture. */
+  hueSpeed?: number
+  /** HSL saturation (0-1) of the injected smoke color. */
+  saturation?: number
+  /** HSL lightness (0-1) of the injected smoke color. */
+  lightness?: number
 }
 
-const DEFAULT_IMAGE = 'https://picsum.photos/id/1035/1200/900'
-
-export function HoverDistortionCard({
+export function ColorSmoke({
   className,
   style,
-  image = DEFAULT_IMAGE,
-  intensity = 0.5,
-  radius = 0.3,
-  simResolution = 128,
-  pressureIterations = 12,
-}: HoverDistortionCardProps) {
+  simResolution = 256,
+  velocityDissipation = 0.99,
+  densityDissipation = 0.97,
+  pressureIterations = 20,
+  hueSpeed = 40,
+  saturation = 0.75,
+  lightness = 0.55,
+}: ColorSmokeProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const pointerRef = usePointerTracking(containerRef)
-  const texture = useDisposableTexture(image)
 
   return (
     <div
       ref={containerRef}
       className={className}
-      style={{ width: '100%', height: '100%', background: '#000', overflow: 'hidden', ...style }}
+      style={{ width: '100%', height: '100%', background: '#000', ...style }}
     >
       <Canvas
         orthographic
         camera={{ left: -1, right: 1, top: 1, bottom: -1, near: 0.1, far: 10, position: [0, 0, 5] }}
+        gl={{ preserveDrawingBuffer: true }}
       >
-        {texture && (
-          <DistortionPlane
-            pointerRef={pointerRef}
-            texture={texture}
-            intensity={intensity}
-            radius={radius}
-            simResolution={simResolution}
-            pressureIterations={pressureIterations}
-          />
-        )}
+        <ColorSmokeSim
+          pointerRef={pointerRef}
+          simResolution={simResolution}
+          velocityDissipation={velocityDissipation}
+          densityDissipation={densityDissipation}
+          pressureIterations={pressureIterations}
+          hueSpeed={hueSpeed}
+          saturation={saturation}
+          lightness={lightness}
+        />
       </Canvas>
     </div>
   )
 }
 
-export default HoverDistortionCard
+export default ColorSmoke

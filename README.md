@@ -74,6 +74,7 @@ registry.forEach(({ id, name, category, description }) => {
 | WebGL Image Transition | `image-transition` | transitions |
 | Checkerboard Text Reveal | `checkerboard-text` | text-effects |
 | Hover Distortion Card | `hover-distortion` | hover-effects |
+| Color Smoke | `color-smoke` | smoke-fluid |
 
 More on the way — flow fields, reaction-diffusion, water ripples, trails, cellular
 automata, erosion. See [`docs/GPU_TEXTURE_FEEDBACK_PATTERNS.md`](docs/GPU_TEXTURE_FEEDBACK_PATTERNS.md)
