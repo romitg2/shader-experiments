@@ -36,7 +36,7 @@ function CityGridSim({
   cellSize,
   gap,
 }: CityGridSimProps) {
-  const { gl, size } = useThree()
+  const { gl } = useThree()
 
   const simScene = useMemo(() => new THREE.Scene(), [])
   const simCamera = useMemo(() => new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1), [])
@@ -214,7 +214,12 @@ function CityGridSim({
     const mat = displayMeshRef.current?.material as THREE.ShaderMaterial | undefined
     if (mat) {
       mat.uniforms.uDensity.value = density.read.texture
-      mat.uniforms.uResolution.value.set(size.width, size.height)
+      // The display shader reads gl_FragCoord.xy, which is in *device*
+      // pixels (the canvas's drawing-buffer size) — not the CSS/logical
+      // size R3F's useThree().size reports. On any devicePixelRatio > 1
+      // display those two differ, which shifted the grid's cell mapping
+      // away from the actual pointer position the sim was splatted at.
+      mat.uniforms.uResolution.value.set(gl.domElement.width, gl.domElement.height)
       mat.uniforms.uCellSize.value = cellSize
       mat.uniforms.uGap.value = gap
     }
