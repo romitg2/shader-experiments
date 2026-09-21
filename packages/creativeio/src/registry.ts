@@ -5,6 +5,7 @@ import { imageTransitionInfo } from './components/image-transition/meta'
 import { checkerboardTextInfo } from './components/checkerboard-text/meta'
 import { hoverDistortionInfo } from './components/hover-distortion/meta'
 import { colorSmokeInfo } from './components/color-smoke/meta'
+import { pixelInkInfo } from './components/pixel-ink/meta'
 
 /**
  * Server-safe catalog: metadata only, no component references. Published as
@@ -23,6 +24,7 @@ export const registry: ComponentInfo[] = [
   checkerboardTextInfo,
   hoverDistortionInfo,
   colorSmokeInfo,
+  pixelInkInfo,
 ]
 
 export type { ComponentInfo } from './lib/types'
