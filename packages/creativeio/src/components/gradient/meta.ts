@@ -11,5 +11,5 @@ export const gradientInfo: ComponentInfo = {
   category: 'backgrounds',
   tags: ['webgl', 'gradient', 'noise', 'background', 'interactive', 'mouse'],
   description:
-    'Three-color animated mesh gradient with a glowing accent-color spotlight that follows the pointer, all blended through domain-warped simplex noise. Move the mouse to drag the third color around.',
+    'Three-color animated mesh gradient. The accent-color spotlight is invisible at rest — move the mouse to trail it across the surface, blended through domain-warped simplex noise.',
 }

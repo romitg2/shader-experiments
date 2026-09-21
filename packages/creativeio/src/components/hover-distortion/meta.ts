@@ -6,5 +6,5 @@ export const hoverDistortionInfo: ComponentInfo = {
   category: 'hover-effects',
   tags: ['webgl', 'hover', 'distortion', 'cursor', 'liquid', 'interactive', 'mouse'],
   description:
-    'Cursor-driven liquid displacement over an image, with a soft radial falloff and an eased trailing lerp so the distortion smoothly chases the pointer.',
+    'Cursor-driven liquid displacement over an image. The image is flat and undistorted at rest — real pointer movement ramps the distortion in with a soft radial falloff, then it trails and fades once you stop.',
 }

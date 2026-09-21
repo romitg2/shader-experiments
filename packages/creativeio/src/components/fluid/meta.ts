@@ -11,5 +11,5 @@ export const fluidInfo: ComponentInfo = {
   category: 'smoke-fluid',
   tags: ['webgl', 'fluid', 'smoke', 'interactive', 'mouse'],
   description:
-    'Interactive smoke/fluid simulation driven by GPU texture feedback: ping-pong advection, a Jacobi pressure solver, and incompressibility via gradient subtraction. Move the mouse to inject velocity and density.',
+    'Interactive smoke/fluid simulation driven by GPU texture feedback: ping-pong advection, a Jacobi pressure solver, and incompressibility via gradient subtraction. Fully still at rest — move the mouse to inject velocity and density, which trails and dissipates naturally.',
 }

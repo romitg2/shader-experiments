@@ -1,8 +1,9 @@
-import { useRef, useEffect, useMemo, type CSSProperties, type RefObject } from 'react'
+import { useRef, useMemo, type CSSProperties, type RefObject } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { createDoubleFBO } from '../../lib/fbo'
 import { blit } from '../../lib/blit'
+import { usePointerTracking, type PointerState } from '../../lib/usePointer'
 
 import vertexShader from './shaders/vertex.glsl'
 import advectionShader from './shaders/advection.glsl'
@@ -12,28 +13,20 @@ import pressureShader from './shaders/pressure.glsl'
 import gradientSubtractShader from './shaders/gradientSubtract.glsl'
 import displayShader from './shaders/display.glsl'
 
-interface MouseState {
-  x: number
-  y: number
-  active: boolean
-}
-
 interface FluidSimProps {
-  mouseRef: RefObject<MouseState>
+  pointerRef: RefObject<PointerState>
   simResolution: number
   velocityDissipation: number
   densityDissipation: number
   pressureIterations: number
-  idle: boolean
 }
 
 function FluidSim({
-  mouseRef,
+  pointerRef,
   simResolution,
   velocityDissipation,
   densityDissipation,
   pressureIterations,
-  idle,
 }: FluidSimProps) {
   const { gl } = useThree()
 
@@ -136,27 +129,21 @@ function FluidSim({
   }, [quadGeom, advectionMat, simScene])
 
   const displayMeshRef = useRef<THREE.Mesh>(null)
-  const prevMouse = useRef({ x: 0.5, y: 0.5 })
+  const prevPointer = useRef({ x: 0.5, y: 0.5 })
 
-  useFrame((state, delta) => {
-    const m = mouseRef.current
+  useFrame((_state, delta) => {
+    const p = pointerRef.current
     const dt = Math.min(delta, 0.033)
 
-    // When idle (no real pointer interaction yet), drive a gentle synthetic
-    // splat so the sim never sits on a blank frame — useful for showcase
-    // contexts (landing pages, catalog thumbnails) where a visitor hasn't
-    // touched the canvas. Real pointer input always takes priority.
-    const useIdleDrift = idle && !m.active
-    const t = state.clock.elapsedTime
-    const px = useIdleDrift ? 0.5 + Math.sin(t * 0.6) * 0.28 : m.x
-    const py = useIdleDrift ? 0.5 + Math.sin(t * 0.9) * 0.22 : m.y
-
-    if (m.active || useIdleDrift) {
-      const dx = (px - prevMouse.current.x) * 10
-      const dy = (py - prevMouse.current.y) * 10
+    // Purely reactive: a splat only happens while the pointer is actually
+    // down/hovering. At rest the sim receives no new input and the existing
+    // density/velocity simply dissipates away below — no synthetic motion.
+    if (p.active) {
+      const dx = (p.x - prevPointer.current.x) * 10
+      const dy = (p.y - prevPointer.current.y) * 10
 
       splatMat.uniforms.uTarget.value = velocity.read.texture
-      splatMat.uniforms.uPoint.value.set(px, py)
+      splatMat.uniforms.uPoint.value.set(p.x, p.y)
       splatMat.uniforms.uColor.value.set(dx * 50, dy * 50, 0)
       splatMat.uniforms.uRadius.value = 0.001
       blit(gl, simScene, simCamera, quadMesh, splatMat, velocity.write)
@@ -169,8 +156,8 @@ function FluidSim({
       density.swap()
     }
 
-    prevMouse.current.x = px
-    prevMouse.current.y = py
+    prevPointer.current.x = p.x
+    prevPointer.current.y = p.y
 
     advectionMat.uniforms.uVelocity.value = velocity.read.texture
     advectionMat.uniforms.uSource.value = velocity.read.texture
@@ -207,8 +194,8 @@ function FluidSim({
 
     gl.setRenderTarget(null)
 
-    if (displayMeshRef.current) {
-      const mat = displayMeshRef.current.material as THREE.ShaderMaterial
+    const mat = displayMeshRef.current?.material as THREE.ShaderMaterial | undefined
+    if (mat) {
       mat.uniforms.uDensity.value = density.read.texture
       mat.uniforms.uVelocity.value = velocity.read.texture
     }
@@ -241,10 +228,6 @@ export interface FluidProps {
   densityDissipation?: number
   /** Jacobi iterations for the pressure solve. Higher = more accurate, more expensive. */
   pressureIterations?: number
-  /** Drive a gentle synthetic splat while there's no real pointer interaction,
-   * so the canvas is never just a blank frame (useful for showcase contexts
-   * like landing pages or catalog thumbnails). Defaults to true. */
-  idle?: boolean
 }
 
 export function Fluid({
@@ -254,42 +237,9 @@ export function Fluid({
   velocityDissipation = 0.99,
   densityDissipation = 0.98,
   pressureIterations = 20,
-  idle = true,
 }: FluidProps) {
-  const mouseRef = useRef<MouseState>({ x: 0.5, y: 0.5, active: false })
   const containerRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const el = containerRef.current
-    if (!el) return
-
-    const onMove = (e: PointerEvent) => {
-      const rect = el.getBoundingClientRect()
-      mouseRef.current.x = (e.clientX - rect.left) / rect.width
-      mouseRef.current.y = 1 - (e.clientY - rect.top) / rect.height
-      mouseRef.current.active = true
-    }
-    const onLeave = () => {
-      mouseRef.current.active = false
-    }
-    const onDown = () => {
-      mouseRef.current.active = true
-    }
-    const onUp = () => {
-      mouseRef.current.active = false
-    }
-
-    el.addEventListener('pointermove', onMove)
-    el.addEventListener('pointerleave', onLeave)
-    el.addEventListener('pointerdown', onDown)
-    el.addEventListener('pointerup', onUp)
-    return () => {
-      el.removeEventListener('pointermove', onMove)
-      el.removeEventListener('pointerleave', onLeave)
-      el.removeEventListener('pointerdown', onDown)
-      el.removeEventListener('pointerup', onUp)
-    }
-  }, [])
+  const pointerRef = usePointerTracking(containerRef)
 
   return (
     <div
@@ -303,12 +253,11 @@ export function Fluid({
         gl={{ preserveDrawingBuffer: true }}
       >
         <FluidSim
-          mouseRef={mouseRef}
+          pointerRef={pointerRef}
           simResolution={simResolution}
           velocityDissipation={velocityDissipation}
           densityDissipation={densityDissipation}
           pressureIterations={pressureIterations}
-          idle={idle}
         />
       </Canvas>
     </div>

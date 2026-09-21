@@ -49,9 +49,10 @@ function TransitionPlane({ texture1, texture2, effect, progress, speed }: Transi
       return
     }
 
-    // Uncontrolled: ping-pong between the two images on its own, same idea
-    // as Fluid/Gradient's idle drift — a component you can drop in with zero
-    // required props and it's already alive.
+    // Uncontrolled: ping-pong between the two images on its own — a
+    // component you can drop in with zero required props and it's already
+    // alive. Pass `progress` to drive the transition externally instead
+    // (e.g. tied to scroll or hover).
     mat.uniforms.uProgress.value = (Math.sin(t * speed * 0.4) + 1) / 2
   })
 

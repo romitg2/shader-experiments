@@ -4,6 +4,7 @@ uniform float uTime;
 uniform vec2 uResolution;
 uniform vec2 uMouse;
 uniform float uMouseRadius;
+uniform float uEnergy;
 uniform vec3 uColorA;
 uniform vec3 uColorB;
 uniform vec3 uColorC;
@@ -64,11 +65,13 @@ void main() {
 
     // Mouse spotlight: the third color glows around the cursor, with its own
     // soft noise-warped edge so it reads as part of the same fluid gradient
-    // rather than a flat circle stamped on top.
+    // rather than a flat circle stamped on top. Gated by uEnergy so it's
+    // fully absent at rest and only fades in/trails while the pointer is
+    // actually moving.
     vec2 mouseAspect = (uMouse - 0.5) * aspect + 0.5;
     float dist = distance(aspectUv, mouseAspect);
     float edgeWobble = fbm(aspectUv * 3.0 + t * 2.0) * 0.08;
-    float glow = smoothstep(uMouseRadius + edgeWobble, 0.0, dist);
+    float glow = smoothstep(uMouseRadius + edgeWobble, 0.0, dist) * uEnergy;
     col = mix(col, uColorC, glow);
 
     gl_FragColor = vec4(col, 1.0);

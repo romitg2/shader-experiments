@@ -12,9 +12,10 @@ interface TileProps {
   size: [number, number]
   delay: number
   trigger: boolean
+  color: string
 }
 
-function Tile({ position, size, delay, trigger }: TileProps) {
+function Tile({ position, size, delay, trigger, color }: TileProps) {
   const meshRef = useRef<THREE.Mesh>(null)
 
   useEffect(() => {
@@ -39,7 +40,7 @@ function Tile({ position, size, delay, trigger }: TileProps) {
   return (
     <mesh ref={meshRef} position={position}>
       <planeGeometry args={size} />
-      <meshBasicMaterial color="#0a0a0a" toneMapped={false} />
+      <meshBasicMaterial color={color} toneMapped={false} />
     </mesh>
   )
 }
@@ -49,9 +50,11 @@ interface CheckerboardSceneProps {
   gridSize: [number, number]
   stagger: number
   trigger: boolean
+  textColor: string
+  tileColor: string
 }
 
-function CheckerboardScene({ text, gridSize, stagger, trigger }: CheckerboardSceneProps) {
+function CheckerboardScene({ text, gridSize, stagger, trigger, textColor, tileColor }: CheckerboardSceneProps) {
   const [rows, cols] = gridSize
   const tileW = WIDTH / cols
   const tileH = HEIGHT / rows
@@ -70,11 +73,11 @@ function CheckerboardScene({ text, gridSize, stagger, trigger }: CheckerboardSce
 
   return (
     <>
-      <Text fontSize={HEIGHT * 0.4} color="#ffffff" anchorX="center" anchorY="middle" maxWidth={WIDTH}>
+      <Text fontSize={HEIGHT * 0.4} color={textColor} anchorX="center" anchorY="middle" maxWidth={WIDTH}>
         {text}
       </Text>
       {tiles.map((tile, i) => (
-        <Tile key={i} position={tile.position} size={[tileW, tileH]} delay={tile.delay} trigger={trigger} />
+        <Tile key={i} position={tile.position} size={[tileW, tileH]} delay={tile.delay} trigger={trigger} color={tileColor} />
       ))}
     </>
   )
@@ -90,6 +93,10 @@ export interface CheckerboardTextTransitionProps {
   trigger?: boolean
   /** Seconds between auto-loop toggles when `trigger` is omitted. */
   autoPlayInterval?: number
+  /** Color of the revealed text. */
+  textColor?: string
+  /** Color of the covering tiles. */
+  tileColor?: string
 }
 
 export function CheckerboardTextTransition({
@@ -100,6 +107,8 @@ export function CheckerboardTextTransition({
   stagger = 0.03,
   trigger,
   autoPlayInterval = 2.2,
+  textColor = '#ffffff',
+  tileColor = '#0a0a0a',
 }: CheckerboardTextTransitionProps) {
   const [autoTrigger, setAutoTrigger] = useState(true)
 
@@ -114,7 +123,14 @@ export function CheckerboardTextTransition({
   return (
     <div className={className} style={{ width: '100%', height: '100%', background: '#000', ...style }}>
       <Canvas camera={{ position: [0, 0, 6], fov: 45 }}>
-        <CheckerboardScene text={text} gridSize={gridSize} stagger={stagger} trigger={resolvedTrigger} />
+        <CheckerboardScene
+          text={text}
+          gridSize={gridSize}
+          stagger={stagger}
+          trigger={resolvedTrigger}
+          textColor={textColor}
+          tileColor={tileColor}
+        />
       </Canvas>
     </div>
   )
