@@ -35,7 +35,7 @@ export default async function ComponentPage({ params }: { params: Promise<{ id: 
       </div>
 
       <Link
-        href="/"
+        href="/components"
         style={{
           position: 'absolute',
           top: 20,
@@ -49,7 +49,7 @@ export default async function ComponentPage({ params }: { params: Promise<{ id: 
           textDecoration: 'none',
         }}
       >
-        ← Gallery
+        ← All components
       </Link>
 
       <ComponentPreview id={id} />

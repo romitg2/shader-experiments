@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'creativeio — shader component gallery',
-  description: 'A growing catalog of GPU shader components built on React Three Fiber.',
+  title: 'creatio — shader components for React',
+  description: 'Production-ready GPU shader components for React Three Fiber.',
   icons: { icon: '/favicon.svg' },
 }
 

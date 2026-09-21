@@ -16,3 +16,93 @@ body {
 a {
   color: inherit;
 }
+
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 220px;
+  gap: 20px;
+  grid-template-areas:
+    'hero hero side1'
+    'hero hero side2'
+    'b1 b2 b3';
+}
+
+.bento-hero {
+  grid-area: hero;
+}
+.bento-side1 {
+  grid-area: side1;
+}
+.bento-side2 {
+  grid-area: side2;
+}
+.bento-b1 {
+  grid-area: b1;
+}
+.bento-b2 {
+  grid-area: b2;
+}
+.bento-b3 {
+  grid-area: b3;
+}
+
+.bento-card {
+  position: relative;
+  display: block;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #0a0a0a;
+  border: 1px solid #232323;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease;
+}
+
+a.bento-card:hover {
+  border-color: #3a3a3a;
+}
+
+.bento-card-media {
+  position: absolute;
+  inset: 0;
+}
+
+.bento-label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 16px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.75), transparent);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.bento-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  opacity: 0.8;
+  white-space: nowrap;
+}
+
+@media (max-width: 860px) {
+  .bento-grid {
+    grid-template-columns: 1fr;
+    grid-auto-rows: 260px;
+    grid-template-areas:
+      'hero'
+      'side1'
+      'side2'
+      'b1'
+      'b2'
+      'b3';
+  }
+}

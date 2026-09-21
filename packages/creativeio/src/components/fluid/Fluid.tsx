@@ -24,9 +24,17 @@ interface FluidSimProps {
   velocityDissipation: number
   densityDissipation: number
   pressureIterations: number
+  idle: boolean
 }
 
-function FluidSim({ mouseRef, simResolution, velocityDissipation, densityDissipation, pressureIterations }: FluidSimProps) {
+function FluidSim({
+  mouseRef,
+  simResolution,
+  velocityDissipation,
+  densityDissipation,
+  pressureIterations,
+  idle,
+}: FluidSimProps) {
   const { gl } = useThree()
 
   const simScene = useMemo(() => new THREE.Scene(), [])
@@ -130,16 +138,25 @@ function FluidSim({ mouseRef, simResolution, velocityDissipation, densityDissipa
   const displayMeshRef = useRef<THREE.Mesh>(null)
   const prevMouse = useRef({ x: 0.5, y: 0.5 })
 
-  useFrame((_state, delta) => {
+  useFrame((state, delta) => {
     const m = mouseRef.current
     const dt = Math.min(delta, 0.033)
 
-    if (m.active) {
-      const dx = (m.x - prevMouse.current.x) * 10
-      const dy = (m.y - prevMouse.current.y) * 10
+    // When idle (no real pointer interaction yet), drive a gentle synthetic
+    // splat so the sim never sits on a blank frame — useful for showcase
+    // contexts (landing pages, catalog thumbnails) where a visitor hasn't
+    // touched the canvas. Real pointer input always takes priority.
+    const useIdleDrift = idle && !m.active
+    const t = state.clock.elapsedTime
+    const px = useIdleDrift ? 0.5 + Math.sin(t * 0.6) * 0.28 : m.x
+    const py = useIdleDrift ? 0.5 + Math.sin(t * 0.9) * 0.22 : m.y
+
+    if (m.active || useIdleDrift) {
+      const dx = (px - prevMouse.current.x) * 10
+      const dy = (py - prevMouse.current.y) * 10
 
       splatMat.uniforms.uTarget.value = velocity.read.texture
-      splatMat.uniforms.uPoint.value.set(m.x, m.y)
+      splatMat.uniforms.uPoint.value.set(px, py)
       splatMat.uniforms.uColor.value.set(dx * 50, dy * 50, 0)
       splatMat.uniforms.uRadius.value = 0.001
       blit(gl, simScene, simCamera, quadMesh, splatMat, velocity.write)
@@ -152,8 +169,8 @@ function FluidSim({ mouseRef, simResolution, velocityDissipation, densityDissipa
       density.swap()
     }
 
-    prevMouse.current.x = m.x
-    prevMouse.current.y = m.y
+    prevMouse.current.x = px
+    prevMouse.current.y = py
 
     advectionMat.uniforms.uVelocity.value = velocity.read.texture
     advectionMat.uniforms.uSource.value = velocity.read.texture
@@ -224,6 +241,10 @@ export interface FluidProps {
   densityDissipation?: number
   /** Jacobi iterations for the pressure solve. Higher = more accurate, more expensive. */
   pressureIterations?: number
+  /** Drive a gentle synthetic splat while there's no real pointer interaction,
+   * so the canvas is never just a blank frame (useful for showcase contexts
+   * like landing pages or catalog thumbnails). Defaults to true. */
+  idle?: boolean
 }
 
 export function Fluid({
@@ -233,6 +254,7 @@ export function Fluid({
   velocityDissipation = 0.99,
   densityDissipation = 0.98,
   pressureIterations = 20,
+  idle = true,
 }: FluidProps) {
   const mouseRef = useRef<MouseState>({ x: 0.5, y: 0.5, active: false })
   const containerRef = useRef<HTMLDivElement>(null)
@@ -286,6 +308,7 @@ export function Fluid({
           velocityDissipation={velocityDissipation}
           densityDissipation={densityDissipation}
           pressureIterations={pressureIterations}
+          idle={idle}
         />
       </Canvas>
     </div>

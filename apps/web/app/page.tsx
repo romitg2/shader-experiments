@@ -2,62 +2,130 @@ import Link from 'next/link'
 import { registry } from '@waterlystudios/creativeio/registry'
 import { ComponentPreview } from './components/ComponentPreview'
 
-export default function HomePage() {
-  return (
-    <div style={{ minHeight: '100vh', padding: '48px 24px' }}>
-      <h1 style={{ fontSize: 28, marginBottom: 8 }}>creativeio</h1>
-      <p style={{ opacity: 0.7, marginBottom: 32 }}>
-        A growing catalog of GPU shader components built on React Three Fiber.
-      </p>
+const comingSoon = [
+  { name: 'Flow Fields', area: 'bento-side1', gradient: 'linear-gradient(135deg, #1a1a2e, #16213e)' },
+  { name: 'Reaction-Diffusion', area: 'bento-side2', gradient: 'linear-gradient(135deg, #1f1533, #0f2027)' },
+  { name: 'Water Ripples', area: 'bento-b1', gradient: 'linear-gradient(135deg, #0f2027, #203a43)' },
+  { name: 'Trails', area: 'bento-b2', gradient: 'linear-gradient(135deg, #2b1055, #1a1a2e)' },
+  { name: 'Cellular Automata', area: 'bento-b3', gradient: 'linear-gradient(135deg, #232526, #414345)' },
+]
 
-      <div
+export default function LandingPage() {
+  const featured = registry[0]
+
+  return (
+    <div style={{ minHeight: '100vh' }}>
+      <header
         style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-          gap: 20,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '24px 24px 0',
+          maxWidth: 1200,
+          margin: '0 auto',
         }}
       >
-        {registry.map((meta) => (
+        <span style={{ fontSize: 18, fontWeight: 700, letterSpacing: '-0.02em' }}>creatio</span>
+        <nav style={{ display: 'flex', gap: 24, fontSize: 14, opacity: 0.8 }}>
+          <Link href="/components" style={{ textDecoration: 'none' }}>
+            Components
+          </Link>
+          <a
+            href="https://github.com/romitg2/shader-experiments"
+            target="_blank"
+            rel="noreferrer"
+            style={{ textDecoration: 'none' }}
+          >
+            GitHub
+          </a>
+        </nav>
+      </header>
+
+      <section style={{ maxWidth: 1200, margin: '0 auto', padding: '96px 24px 56px' }}>
+        <h1
+          style={{
+            fontSize: 'clamp(36px, 6vw, 64px)',
+            fontWeight: 700,
+            letterSpacing: '-0.03em',
+            lineHeight: 1.05,
+            maxWidth: 720,
+          }}
+        >
+          Shader components, ready to drop in.
+        </h1>
+        <p style={{ fontSize: 18, opacity: 0.7, marginTop: 20, maxWidth: 560, lineHeight: 1.6 }}>
+          Production-ready GPU shader components for React Three Fiber. Preview them live, then
+          grab the code or get premium access.
+        </p>
+        <div style={{ display: 'flex', gap: 12, marginTop: 32 }}>
           <Link
-            key={meta.id}
-            href={`/c/${meta.id}`}
+            href="/components"
             style={{
-              display: 'block',
-              borderRadius: 12,
-              overflow: 'hidden',
-              background: '#161616',
-              border: '1px solid #2a2a2a',
+              padding: '12px 22px',
+              borderRadius: 8,
+              background: '#fff',
+              color: '#000',
+              fontWeight: 600,
+              fontSize: 14,
               textDecoration: 'none',
-              color: 'inherit',
             }}
           >
-            <div style={{ height: 180, background: '#000' }}>
-              <ComponentPreview id={meta.id} />
-            </div>
-            <div style={{ padding: 20 }}>
-              <div style={{ fontSize: 12, opacity: 0.5, marginBottom: 6 }}>{meta.category}</div>
-              <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>{meta.name}</div>
-              <p style={{ fontSize: 13, opacity: 0.7, lineHeight: 1.5 }}>{meta.description}</p>
-              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 12 }}>
-                {meta.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    style={{
-                      fontSize: 11,
-                      padding: '2px 8px',
-                      borderRadius: 999,
-                      background: '#242424',
-                      opacity: 0.7,
-                    }}
-                  >
-                    {tag}
-                  </span>
-                ))}
+            Browse components
+          </Link>
+          <a
+            href="https://github.com/romitg2/shader-experiments"
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              padding: '12px 22px',
+              borderRadius: 8,
+              border: '1px solid #333',
+              color: '#fff',
+              fontWeight: 600,
+              fontSize: 14,
+              textDecoration: 'none',
+            }}
+          >
+            View on GitHub
+          </a>
+        </div>
+      </section>
+
+      <section style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px 96px' }}>
+        <div className="bento-grid">
+          {featured && (
+            <Link href={`/c/${featured.id}`} className="bento-card bento-hero">
+              <div className="bento-card-media">
+                <ComponentPreview id={featured.id} />
+              </div>
+              <div className="bento-label">
+                <span>{featured.name}</span>
+              </div>
+            </Link>
+          )}
+
+          {comingSoon.map((item) => (
+            <div key={item.name} className={`bento-card ${item.area}`} style={{ background: item.gradient }}>
+              <div className="bento-label">
+                <span>{item.name}</span>
+                <span className="bento-badge">Soon</span>
               </div>
             </div>
-          </Link>
-        ))}
-      </div>
+          ))}
+        </div>
+      </section>
+
+      <footer
+        style={{
+          maxWidth: 1200,
+          margin: '0 auto',
+          padding: '24px 24px 48px',
+          fontSize: 13,
+          opacity: 0.5,
+        }}
+      >
+        creatio — a growing catalog of GPU shader components.
+      </footer>
     </div>
   )
 }
