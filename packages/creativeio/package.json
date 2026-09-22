@@ -28,9 +28,7 @@
     "lint": "oxlint -c ../../.oxlintrc.json ."
   },
   "dependencies": {
-    "@react-three/drei": "^10.7.0",
     "@react-three/fiber": "^9.7.0",
-    "gsap": "^3.12.5",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "three": "^0.186.0"

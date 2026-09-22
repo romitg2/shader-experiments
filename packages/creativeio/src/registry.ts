@@ -1,9 +1,5 @@
 import type { ComponentInfo } from './lib/types'
 import { fluidInfo } from './components/fluid/meta'
-import { gradientInfo } from './components/gradient/meta'
-import { imageTransitionInfo } from './components/image-transition/meta'
-import { checkerboardTextInfo } from './components/checkerboard-text/meta'
-import { hoverDistortionInfo } from './components/hover-distortion/meta'
 import { colorSmokeInfo } from './components/color-smoke/meta'
 import { pixelInkInfo } from './components/pixel-ink/meta'
 import { cityGridInfo } from './components/city-grid/meta'
@@ -18,15 +14,6 @@ import { cityGridInfo } from './components/city-grid/meta'
  * Adding a new component means adding its info import + array entry here,
  * and a re-export in index.ts — nothing else in this file changes.
  */
-export const registry: ComponentInfo[] = [
-  imageTransitionInfo,
-  fluidInfo,
-  gradientInfo,
-  checkerboardTextInfo,
-  hoverDistortionInfo,
-  colorSmokeInfo,
-  pixelInkInfo,
-  cityGridInfo,
-]
+export const registry: ComponentInfo[] = [fluidInfo, colorSmokeInfo, pixelInkInfo, cityGridInfo]
 
 export type { ComponentInfo } from './lib/types'

@@ -67,19 +67,18 @@ registry.forEach(({ id, name, category, description }) => {
 
 ## Components
 
+All current components live in one family — **Fluid Simulation** — sharing the same
+GPU velocity(+density) sim (ping-pong advection, Jacobi pressure solve,
+gradient-subtract incompressibility) behind a different display shader:
+
 | Component | id | Category |
 | --- | --- | --- |
 | Fluid Simulation | `fluid` | smoke-fluid |
-| Animated Gradient | `gradient` | backgrounds |
-| WebGL Image Transition | `image-transition` | transitions |
-| Checkerboard Text Reveal | `checkerboard-text` | text-effects |
-| Hover Distortion Card | `hover-distortion` | hover-effects |
 | Color Smoke | `color-smoke` | smoke-fluid |
 | Pixel Ink | `pixel-ink` | smoke-fluid |
 | City Grid | `city-grid` | smoke-fluid |
 
-More on the way — flow fields, reaction-diffusion, water ripples, trails, cellular
-automata, erosion. See [`docs/GPU_TEXTURE_FEEDBACK_PATTERNS.md`](docs/GPU_TEXTURE_FEEDBACK_PATTERNS.md)
+See [`docs/GPU_TEXTURE_FEEDBACK_PATTERNS.md`](docs/GPU_TEXTURE_FEEDBACK_PATTERNS.md)
 for the underlying GPU texture-feedback techniques these are built from.
 
 **Uniform-mutation gotcha:** always mutate a `<shaderMaterial>`'s uniforms by

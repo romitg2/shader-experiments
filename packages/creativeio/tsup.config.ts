@@ -16,7 +16,7 @@ export default defineConfig([
     // silently breaking `@waterlystudios/creativeio/registry`'s types for
     // consumers until the next lucky-timed rebuild.
     clean: false,
-    external: ['react', 'react-dom', 'three', '@react-three/fiber', '@react-three/drei', 'gsap'],
+    external: ['react', 'react-dom', 'three', '@react-three/fiber'],
     esbuildOptions(options) {
       options.loader = { ...options.loader, '.glsl': 'text' }
     },
