@@ -71,12 +71,19 @@ All current components live in one family — **Fluid Simulation** — sharing t
 GPU velocity(+density) sim (ping-pong advection, Jacobi pressure solve,
 gradient-subtract incompressibility) behind a different display shader:
 
-| Component | id | Category |
+| Component | id | What's different |
 | --- | --- | --- |
-| Fluid Simulation | `fluid` | smoke-fluid |
-| Color Smoke | `color-smoke` | smoke-fluid |
-| Pixel Ink | `pixel-ink` | smoke-fluid |
-| City Grid | `city-grid` | smoke-fluid |
+| Fluid Simulation | `fluid` | Grayscale smoke, the baseline sim |
+| Color Smoke | `color-smoke` | Density carries color, screen-blended for a luminous haze |
+| Pixel Ink | `pixel-ink` | Density quantized to a randomly-dithered pixel grain |
+| City Grid | `city-grid` | Density quantized to a grid of squares that grow/shrink |
+| Flow Field | `flow-field` | Renders the raw velocity field as oriented strokes, not a transported dye |
+| Liquid Metal | `liquid-metal` | Density gradient shaded as a fake normal — diffuse/specular/fresnel chrome look |
+| Neon Flow | `neon-flow` | Sobel edge of density only — a glowing outline, no fill |
+| Fire Flow | `fire-flow` | Splats carry upward buoyancy; density mapped through a fire color ramp |
+| Halftone | `halftone` | Density quantized to a deterministic (non-random) grid of growing circles |
+
+Every component shares the category `smoke-fluid`.
 
 See [`docs/GPU_TEXTURE_FEEDBACK_PATTERNS.md`](docs/GPU_TEXTURE_FEEDBACK_PATTERNS.md)
 for the underlying GPU texture-feedback techniques these are built from.
