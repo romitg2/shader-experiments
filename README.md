@@ -82,6 +82,11 @@ gradient-subtract incompressibility) behind a different display shader:
 | Neon Flow | `neon-flow` | Sobel edge of density only — a glowing outline, no fill |
 | Fire Flow | `fire-flow` | Splats carry upward buoyancy; density mapped through a fire color ramp |
 | Halftone | `halftone` | Density quantized to a deterministic (non-random) grid of growing circles |
+| Particle Flow | `particle-flow` | Thousands of discrete GPGPU particles advected by the velocity field, not a continuous quad |
+| Soft Spread | `soft-spread` | Heavily blurred, low-opacity, transparent canvas — a barely-there translucent bloom |
+| Whisper Smoke | `whisper-smoke` | Full turbulent detail kept, but low-contrast/low-opacity on a transparent canvas — faint natural wisps |
+| Ink Bloom | `ink-bloom` | Pigment pools and darkens at the edge of the mass — a watercolor/ink-in-water bleed |
+| Dust Drift | `dust-drift` | Sparser, slower, gentler tuning of the Particle Flow technique — ambient floating motes |
 
 Every component shares the category `smoke-fluid`.
 

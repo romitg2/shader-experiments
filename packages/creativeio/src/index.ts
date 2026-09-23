@@ -11,6 +11,11 @@ import { LiquidMetal, liquidMetalInfo } from './components/liquid-metal'
 import { NeonFlow, neonFlowInfo } from './components/neon-flow'
 import { FireFlow, fireFlowInfo } from './components/fire-flow'
 import { Halftone, halftoneInfo } from './components/halftone'
+import { ParticleFlow, particleFlowInfo } from './components/particle-flow'
+import { SoftSpread, softSpreadInfo } from './components/soft-spread'
+import { WhisperSmoke, whisperSmokeInfo } from './components/whisper-smoke'
+import { InkBloom, inkBloomInfo } from './components/ink-bloom'
+import { DustDrift, dustDriftInfo } from './components/dust-drift'
 
 export { Fluid, type FluidProps } from './components/fluid'
 export { ColorSmoke, type ColorSmokeProps } from './components/color-smoke'
@@ -21,6 +26,11 @@ export { LiquidMetal, type LiquidMetalProps } from './components/liquid-metal'
 export { NeonFlow, type NeonFlowProps } from './components/neon-flow'
 export { FireFlow, type FireFlowProps } from './components/fire-flow'
 export { Halftone, type HalftoneProps } from './components/halftone'
+export { ParticleFlow, type ParticleFlowProps } from './components/particle-flow'
+export { SoftSpread, type SoftSpreadProps } from './components/soft-spread'
+export { WhisperSmoke, type WhisperSmokeProps } from './components/whisper-smoke'
+export { InkBloom, type InkBloomProps } from './components/ink-bloom'
+export { DustDrift, type DustDriftProps } from './components/dust-drift'
 export type { ComponentMeta } from './lib/types'
 
 /** id -> component, for looking up which component to render by registry id. */
@@ -34,6 +44,11 @@ export const components: Record<string, ComponentType<any>> = {
   'neon-flow': NeonFlow,
   'fire-flow': FireFlow,
   halftone: Halftone,
+  'particle-flow': ParticleFlow,
+  'soft-spread': SoftSpread,
+  'whisper-smoke': WhisperSmoke,
+  'ink-bloom': InkBloom,
+  'dust-drift': DustDrift,
 }
 
 /**
@@ -52,4 +67,9 @@ export const registry: ComponentMeta[] = [
   { ...neonFlowInfo, Component: NeonFlow },
   { ...fireFlowInfo, Component: FireFlow },
   { ...halftoneInfo, Component: Halftone },
+  { ...particleFlowInfo, Component: ParticleFlow },
+  { ...softSpreadInfo, Component: SoftSpread },
+  { ...whisperSmokeInfo, Component: WhisperSmoke },
+  { ...inkBloomInfo, Component: InkBloom },
+  { ...dustDriftInfo, Component: DustDrift },
 ]

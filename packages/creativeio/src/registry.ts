@@ -8,6 +8,11 @@ import { liquidMetalInfo } from './components/liquid-metal/meta'
 import { neonFlowInfo } from './components/neon-flow/meta'
 import { fireFlowInfo } from './components/fire-flow/meta'
 import { halftoneInfo } from './components/halftone/meta'
+import { particleFlowInfo } from './components/particle-flow/meta'
+import { softSpreadInfo } from './components/soft-spread/meta'
+import { whisperSmokeInfo } from './components/whisper-smoke/meta'
+import { inkBloomInfo } from './components/ink-bloom/meta'
+import { dustDriftInfo } from './components/dust-drift/meta'
 
 /**
  * Server-safe catalog: metadata only, no component references. Published as
@@ -29,6 +34,11 @@ export const registry: ComponentInfo[] = [
   neonFlowInfo,
   fireFlowInfo,
   halftoneInfo,
+  particleFlowInfo,
+  softSpreadInfo,
+  whisperSmokeInfo,
+  inkBloomInfo,
+  dustDriftInfo,
 ]
 
 export type { ComponentInfo } from './lib/types'
