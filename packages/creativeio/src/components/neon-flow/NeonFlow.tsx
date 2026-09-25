@@ -3,7 +3,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { createDoubleFBO } from '../../lib/fbo'
 import { blit } from '../../lib/blit'
-import { usePointerTracking, type PointerState } from '../../lib/usePointer'
+import { usePointerTracking, type PointerState, MotionEnergy } from '../../lib/usePointer'
 
 import vertexShader from './shaders/vertex.glsl'
 import advectionShader from './shaders/advection.glsl'
@@ -138,10 +138,17 @@ function NeonFlowSim({
   const prevPointer = useRef({ x: 0.5, y: 0.5 })
   const splatColor = useRef(new THREE.Color())
   const palette = useMemo(() => colors.map((c) => new THREE.Color(c)), [colors])
+  const motionEnergyRef = useRef<MotionEnergy | null>(null)
+  if (!motionEnergyRef.current) motionEnergyRef.current = new MotionEnergy()
 
   useFrame((state, delta) => {
     const p = pointerRef.current
     const dt = Math.min(delta, 0.033)
+    // See Fluid.tsx: pointer.active alone doesn't mean the cursor is
+    // actually moving, so gate the density splat's strength on real motion
+    // energy instead — otherwise a resting cursor keeps painting at full
+    // strength forever.
+    const energy = motionEnergyRef.current!.update(p, dt)
 
     if (p.active) {
       const dx = (p.x - prevPointer.current.x) * 10
@@ -162,7 +169,11 @@ function NeonFlowSim({
       splatColor.current.copy(palette[i0]).lerp(palette[i1], t)
 
       splatMat.uniforms.uTarget.value = density.read.texture
-      splatMat.uniforms.uColor.value.set(splatColor.current.r, splatColor.current.g, splatColor.current.b)
+      splatMat.uniforms.uColor.value.set(
+        splatColor.current.r * energy,
+        splatColor.current.g * energy,
+        splatColor.current.b * energy,
+      )
       splatMat.uniforms.uRadius.value = 0.0016
       blit(gl, simScene, simCamera, quadMesh, splatMat, density.write)
       density.swap()

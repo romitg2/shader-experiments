@@ -3,7 +3,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { createDoubleFBO } from '../../lib/fbo'
 import { blit } from '../../lib/blit'
-import { usePointerTracking, type PointerState } from '../../lib/usePointer'
+import { usePointerTracking, type PointerState, MotionEnergy } from '../../lib/usePointer'
 
 import vertexShader from './shaders/vertex.glsl'
 import advectionShader from './shaders/advection.glsl'
@@ -130,14 +130,20 @@ function FluidSim({
 
   const displayMeshRef = useRef<THREE.Mesh>(null)
   const prevPointer = useRef({ x: 0.5, y: 0.5 })
+  const motionEnergyRef = useRef<MotionEnergy | null>(null)
+  if (!motionEnergyRef.current) motionEnergyRef.current = new MotionEnergy()
 
   useFrame((_state, delta) => {
     const p = pointerRef.current
     const dt = Math.min(delta, 0.033)
+    // pointer.active stays true for as long as the cursor sits over the
+    // canvas, even once it's stopped moving (no new pointermove events fire
+    // while stationary) — gating only on `active` kept re-injecting a full
+    // density splat every frame at a resting cursor. motionEnergy tracks
+    // actual movement speed and decays to 0 within a fraction of a second
+    // once the pointer stops, so the splat below fades out instead.
+    const energy = motionEnergyRef.current!.update(p, dt)
 
-    // Purely reactive: a splat only happens while the pointer is actually
-    // down/hovering. At rest the sim receives no new input and the existing
-    // density/velocity simply dissipates away below — no synthetic motion.
     if (p.active) {
       const dx = (p.x - prevPointer.current.x) * 10
       const dy = (p.y - prevPointer.current.y) * 10
@@ -150,7 +156,7 @@ function FluidSim({
       velocity.swap()
 
       splatMat.uniforms.uTarget.value = density.read.texture
-      splatMat.uniforms.uColor.value.set(0.8, 0.8, 0.8)
+      splatMat.uniforms.uColor.value.set(0.8 * energy, 0.8 * energy, 0.8 * energy)
       splatMat.uniforms.uRadius.value = 0.001
       blit(gl, simScene, simCamera, quadMesh, splatMat, density.write)
       density.swap()
