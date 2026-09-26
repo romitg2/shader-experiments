@@ -34,6 +34,12 @@ import { MarbleTurbulence, marbleTurbulenceInfo } from './components/marble-turb
 import { NebulaTurbulence, nebulaTurbulenceInfo } from './components/nebula-turbulence'
 import { CellGrowth, cellGrowthInfo } from './components/cell-growth'
 import { CrystalFacets, crystalFacetsInfo } from './components/crystal-facets'
+import { AsciiFluid, asciiFluidInfo } from './components/ascii-fluid'
+import { BrailleMatrix, brailleMatrixInfo } from './components/braille-matrix'
+import { MatrixRain, matrixRainInfo } from './components/matrix-rain'
+import { CrtTerminal, crtTerminalInfo } from './components/crt-terminal'
+import { PortraitReveal, portraitRevealInfo } from './components/portrait-reveal'
+import { TypographicCloud, typographicCloudInfo } from './components/typographic-cloud'
 
 export { Fluid, type FluidProps } from './components/fluid'
 export { ColorSmoke, type ColorSmokeProps } from './components/color-smoke'
@@ -67,6 +73,12 @@ export { MarbleTurbulence, type MarbleTurbulenceProps } from './components/marbl
 export { NebulaTurbulence, type NebulaTurbulenceProps } from './components/nebula-turbulence'
 export { CellGrowth, type CellGrowthProps } from './components/cell-growth'
 export { CrystalFacets, type CrystalFacetsProps } from './components/crystal-facets'
+export { AsciiFluid, type AsciiFluidProps } from './components/ascii-fluid'
+export { BrailleMatrix, type BrailleMatrixProps } from './components/braille-matrix'
+export { MatrixRain, type MatrixRainProps } from './components/matrix-rain'
+export { CrtTerminal, type CrtTerminalProps } from './components/crt-terminal'
+export { PortraitReveal, type PortraitRevealProps } from './components/portrait-reveal'
+export { TypographicCloud, type TypographicCloudProps } from './components/typographic-cloud'
 export type { ComponentMeta } from './lib/types'
 
 /** id -> component, for looking up which component to render by registry id. */
@@ -103,6 +115,12 @@ export const components: Record<string, ComponentType<any>> = {
   'nebula-turbulence': NebulaTurbulence,
   'cell-growth': CellGrowth,
   'crystal-facets': CrystalFacets,
+  'ascii-fluid': AsciiFluid,
+  'braille-matrix': BrailleMatrix,
+  'matrix-rain': MatrixRain,
+  'crt-terminal': CrtTerminal,
+  'portrait-reveal': PortraitReveal,
+  'typographic-cloud': TypographicCloud,
 }
 
 /**
@@ -144,4 +162,10 @@ export const registry: ComponentMeta[] = [
   { ...nebulaTurbulenceInfo, Component: NebulaTurbulence },
   { ...cellGrowthInfo, Component: CellGrowth },
   { ...crystalFacetsInfo, Component: CrystalFacets },
+  { ...asciiFluidInfo, Component: AsciiFluid },
+  { ...brailleMatrixInfo, Component: BrailleMatrix },
+  { ...matrixRainInfo, Component: MatrixRain },
+  { ...crtTerminalInfo, Component: CrtTerminal },
+  { ...portraitRevealInfo, Component: PortraitReveal },
+  { ...typographicCloudInfo, Component: TypographicCloud },
 ]

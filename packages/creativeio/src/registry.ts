@@ -31,6 +31,12 @@ import { marbleTurbulenceInfo } from './components/marble-turbulence/meta'
 import { nebulaTurbulenceInfo } from './components/nebula-turbulence/meta'
 import { cellGrowthInfo } from './components/cell-growth/meta'
 import { crystalFacetsInfo } from './components/crystal-facets/meta'
+import { asciiFluidInfo } from './components/ascii-fluid/meta'
+import { brailleMatrixInfo } from './components/braille-matrix/meta'
+import { matrixRainInfo } from './components/matrix-rain/meta'
+import { crtTerminalInfo } from './components/crt-terminal/meta'
+import { portraitRevealInfo } from './components/portrait-reveal/meta'
+import { typographicCloudInfo } from './components/typographic-cloud/meta'
 
 /**
  * Server-safe catalog: metadata only, no component references. Published as
@@ -75,6 +81,12 @@ export const registry: ComponentInfo[] = [
   nebulaTurbulenceInfo,
   cellGrowthInfo,
   crystalFacetsInfo,
+  asciiFluidInfo,
+  brailleMatrixInfo,
+  matrixRainInfo,
+  crtTerminalInfo,
+  portraitRevealInfo,
+  typographicCloudInfo,
 ]
 
 export type { ComponentInfo } from './lib/types'

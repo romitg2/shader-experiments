@@ -108,6 +108,12 @@ buffers at all, chosen specifically to stay cheap on ordinary hardware:
 | Nebula Turbulence | `nebula-turbulence` | Same FBM technique, larger warp + cosmic palette + a cheap twinkling-star layer |
 | Cell Growth | `cell-growth` | Standalone: Worley (cellular) noise, 9 distance checks per pixel, pulsing glow |
 | Crystal Facets | `crystal-facets` | Same Worley search tracking F1+F2 for true flat-shaded Voronoi regions with edge lines |
+| ASCII Fluid | `ascii-fluid` | Fluid sim rendered as monospace glyphs — density bucketed into brightness levels, looked up in a Canvas2D-built texture atlas |
+| Braille Matrix | `braille-matrix` | Fluid sim rendered as a procedural 2x4 braille dot grid — no font atlas, 8x finer effective sampling than ASCII Fluid |
+| Matrix Code Rain | `matrix-rain` | Standalone: hash-seeded falling glyph columns with a bright head and fading tail, always visible |
+| CRT Terminal | `crt-terminal` | ASCII Fluid's glyph technique plus a scanline/vignette/chromatic-aberration CRT overlay |
+| Portrait Reveal | `portrait-reveal` | Standalone: domain-warped FBM rendered as ASCII everywhere, with a cursor-following lens revealing the raw smooth field |
+| Typographic Cloud | `typographic-cloud` | Fluid sim on a transparent canvas, rendered as fixed random letters whose opacity (not identity) tracks density |
 
 Every component shares the category `smoke-fluid`.
 
