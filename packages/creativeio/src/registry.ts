@@ -13,6 +13,9 @@ import { softSpreadInfo } from './components/soft-spread/meta'
 import { whisperSmokeInfo } from './components/whisper-smoke/meta'
 import { inkBloomInfo } from './components/ink-bloom/meta'
 import { dustDriftInfo } from './components/dust-drift/meta'
+import { shapeReassemblyInfo } from './components/shape-reassembly/meta'
+import { snowGlobeInfo } from './components/snow-globe/meta'
+import { fireflySwarmInfo } from './components/firefly-swarm/meta'
 import { weatherRadarInfo } from './components/weather-radar/meta'
 import { thermalCamInfo } from './components/thermal-cam/meta'
 import { topoContourInfo } from './components/topo-contour/meta'
@@ -54,6 +57,9 @@ export const registry: ComponentInfo[] = [
   whisperSmokeInfo,
   inkBloomInfo,
   dustDriftInfo,
+  shapeReassemblyInfo,
+  snowGlobeInfo,
+  fireflySwarmInfo,
   weatherRadarInfo,
   thermalCamInfo,
   topoContourInfo,

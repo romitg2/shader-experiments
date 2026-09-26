@@ -16,6 +16,9 @@ import { SoftSpread, softSpreadInfo } from './components/soft-spread'
 import { WhisperSmoke, whisperSmokeInfo } from './components/whisper-smoke'
 import { InkBloom, inkBloomInfo } from './components/ink-bloom'
 import { DustDrift, dustDriftInfo } from './components/dust-drift'
+import { ShapeReassembly, shapeReassemblyInfo } from './components/shape-reassembly'
+import { SnowGlobe, snowGlobeInfo } from './components/snow-globe'
+import { FireflySwarm, fireflySwarmInfo } from './components/firefly-swarm'
 import { WeatherRadar, weatherRadarInfo } from './components/weather-radar'
 import { ThermalCam, thermalCamInfo } from './components/thermal-cam'
 import { TopoContour, topoContourInfo } from './components/topo-contour'
@@ -46,6 +49,9 @@ export { SoftSpread, type SoftSpreadProps } from './components/soft-spread'
 export { WhisperSmoke, type WhisperSmokeProps } from './components/whisper-smoke'
 export { InkBloom, type InkBloomProps } from './components/ink-bloom'
 export { DustDrift, type DustDriftProps } from './components/dust-drift'
+export { ShapeReassembly, type ShapeReassemblyProps } from './components/shape-reassembly'
+export { SnowGlobe, type SnowGlobeProps } from './components/snow-globe'
+export { FireflySwarm, type FireflySwarmProps } from './components/firefly-swarm'
 export { WeatherRadar, type WeatherRadarProps } from './components/weather-radar'
 export { ThermalCam, type ThermalCamProps } from './components/thermal-cam'
 export { TopoContour, type TopoContourProps } from './components/topo-contour'
@@ -79,6 +85,9 @@ export const components: Record<string, ComponentType<any>> = {
   'whisper-smoke': WhisperSmoke,
   'ink-bloom': InkBloom,
   'dust-drift': DustDrift,
+  'shape-reassembly': ShapeReassembly,
+  'snow-globe': SnowGlobe,
+  'firefly-swarm': FireflySwarm,
   'weather-radar': WeatherRadar,
   'thermal-cam': ThermalCam,
   'topo-contour': TopoContour,
@@ -117,6 +126,9 @@ export const registry: ComponentMeta[] = [
   { ...whisperSmokeInfo, Component: WhisperSmoke },
   { ...inkBloomInfo, Component: InkBloom },
   { ...dustDriftInfo, Component: DustDrift },
+  { ...shapeReassemblyInfo, Component: ShapeReassembly },
+  { ...snowGlobeInfo, Component: SnowGlobe },
+  { ...fireflySwarmInfo, Component: FireflySwarm },
   { ...weatherRadarInfo, Component: WeatherRadar },
   { ...thermalCamInfo, Component: ThermalCam },
   { ...topoContourInfo, Component: TopoContour },

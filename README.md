@@ -89,7 +89,10 @@ buffers at all, chosen specifically to stay cheap on ordinary hardware:
 | Soft Spread | `soft-spread` | Heavily blurred, low-opacity, transparent canvas — a barely-there translucent bloom |
 | Whisper Smoke | `whisper-smoke` | Full turbulent detail kept, but low-contrast/low-opacity on a transparent canvas — faint natural wisps |
 | Ink Bloom | `ink-bloom` | Pigment pools and darkens at the edge of the mass — a watercolor/ink-in-water bleed |
-| Dust Drift | `dust-drift` | Sparser, slower, gentler tuning of the Particle Flow technique — ambient floating motes |
+| Dust Drift | `dust-drift` | Gentler tuning of the Particle Flow technique — motes remember their original position and drift back to it once undisturbed, staying faintly visible at rest |
+| Shape Reassembly | `shape-reassembly` | Dust Drift's homing mechanic aimed at text: each particle's home is sampled from rendered-text ink pixels, so scattering it apart reveals it reassembling back into words |
+| Snow Globe | `snow-globe` | A different particle technique entirely — literal gravity/drag/floor-collision physics per particle, no fluid velocity field. The cursor injects a direct kick instead of pushing a shared current, reading as shaking the globe |
+| Firefly Swarm | `firefly-swarm` | Standalone: no simulation buffers at all, not even ping-pong — each firefly's idle orbit and glow pulse is a closed-form function of time computed directly in the vertex shader |
 | Weather Radar | `weather-radar` | Density quantized into hard NEXRAD-style reflectivity bands instead of a smooth gradient |
 | Thermal Camera | `thermal-cam` | IronBow infrared palette with a scanline/vignette overlay |
 | Topographic Contour | `topo-contour` | Terrain elevation ramp with contour isolines at regular intervals |
