@@ -13,6 +13,14 @@ import { softSpreadInfo } from './components/soft-spread/meta'
 import { whisperSmokeInfo } from './components/whisper-smoke/meta'
 import { inkBloomInfo } from './components/ink-bloom/meta'
 import { dustDriftInfo } from './components/dust-drift/meta'
+import { weatherRadarInfo } from './components/weather-radar/meta'
+import { thermalCamInfo } from './components/thermal-cam/meta'
+import { topoContourInfo } from './components/topo-contour/meta'
+import { radarSweepInfo } from './components/radar-sweep/meta'
+import { oscilloscopeInfo } from './components/oscilloscope/meta'
+import { fieldLinesInfo } from './components/field-lines/meta'
+import { blueprintInfo } from './components/blueprint/meta'
+import { circuitTraceInfo } from './components/circuit-trace/meta'
 
 /**
  * Server-safe catalog: metadata only, no component references. Published as
@@ -39,6 +47,14 @@ export const registry: ComponentInfo[] = [
   whisperSmokeInfo,
   inkBloomInfo,
   dustDriftInfo,
+  weatherRadarInfo,
+  thermalCamInfo,
+  topoContourInfo,
+  radarSweepInfo,
+  oscilloscopeInfo,
+  fieldLinesInfo,
+  blueprintInfo,
+  circuitTraceInfo,
 ]
 
 export type { ComponentInfo } from './lib/types'

@@ -87,6 +87,14 @@ gradient-subtract incompressibility) behind a different display shader:
 | Whisper Smoke | `whisper-smoke` | Full turbulent detail kept, but low-contrast/low-opacity on a transparent canvas — faint natural wisps |
 | Ink Bloom | `ink-bloom` | Pigment pools and darkens at the edge of the mass — a watercolor/ink-in-water bleed |
 | Dust Drift | `dust-drift` | Sparser, slower, gentler tuning of the Particle Flow technique — ambient floating motes |
+| Weather Radar | `weather-radar` | Density quantized into hard NEXRAD-style reflectivity bands instead of a smooth gradient |
+| Thermal Camera | `thermal-cam` | IronBow infrared palette with a scanline/vignette overlay |
+| Topographic Contour | `topo-contour` | Terrain elevation ramp with contour isolines at regular intervals |
+| Radar Sweep | `radar-sweep` | Green phosphor density on a circular scope with range rings and a rotating sweep beam |
+| Oscilloscope | `oscilloscope` | Samples density along one scanline and plots it as a live 1D waveform, not the 2D field |
+| Field Lines | `field-lines` | Denser, thinner monochrome variant of Flow Field's strokes over a reference grid |
+| Blueprint Schematic | `blueprint` | Edge-detected white contour lines on a solid blueprint-blue backdrop with a technical grid |
+| Circuit Trace | `circuit-trace` | Grid cells connected by orthogonal PCB-style traces instead of filled squares |
 
 Every component shares the category `smoke-fluid`.
 

@@ -16,6 +16,14 @@ import { SoftSpread, softSpreadInfo } from './components/soft-spread'
 import { WhisperSmoke, whisperSmokeInfo } from './components/whisper-smoke'
 import { InkBloom, inkBloomInfo } from './components/ink-bloom'
 import { DustDrift, dustDriftInfo } from './components/dust-drift'
+import { WeatherRadar, weatherRadarInfo } from './components/weather-radar'
+import { ThermalCam, thermalCamInfo } from './components/thermal-cam'
+import { TopoContour, topoContourInfo } from './components/topo-contour'
+import { RadarSweep, radarSweepInfo } from './components/radar-sweep'
+import { Oscilloscope, oscilloscopeInfo } from './components/oscilloscope'
+import { FieldLines, fieldLinesInfo } from './components/field-lines'
+import { Blueprint, blueprintInfo } from './components/blueprint'
+import { CircuitTrace, circuitTraceInfo } from './components/circuit-trace'
 
 export { Fluid, type FluidProps } from './components/fluid'
 export { ColorSmoke, type ColorSmokeProps } from './components/color-smoke'
@@ -31,6 +39,14 @@ export { SoftSpread, type SoftSpreadProps } from './components/soft-spread'
 export { WhisperSmoke, type WhisperSmokeProps } from './components/whisper-smoke'
 export { InkBloom, type InkBloomProps } from './components/ink-bloom'
 export { DustDrift, type DustDriftProps } from './components/dust-drift'
+export { WeatherRadar, type WeatherRadarProps } from './components/weather-radar'
+export { ThermalCam, type ThermalCamProps } from './components/thermal-cam'
+export { TopoContour, type TopoContourProps } from './components/topo-contour'
+export { RadarSweep, type RadarSweepProps } from './components/radar-sweep'
+export { Oscilloscope, type OscilloscopeProps } from './components/oscilloscope'
+export { FieldLines, type FieldLinesProps } from './components/field-lines'
+export { Blueprint, type BlueprintProps } from './components/blueprint'
+export { CircuitTrace, type CircuitTraceProps } from './components/circuit-trace'
 export type { ComponentMeta } from './lib/types'
 
 /** id -> component, for looking up which component to render by registry id. */
@@ -49,6 +65,14 @@ export const components: Record<string, ComponentType<any>> = {
   'whisper-smoke': WhisperSmoke,
   'ink-bloom': InkBloom,
   'dust-drift': DustDrift,
+  'weather-radar': WeatherRadar,
+  'thermal-cam': ThermalCam,
+  'topo-contour': TopoContour,
+  'radar-sweep': RadarSweep,
+  oscilloscope: Oscilloscope,
+  'field-lines': FieldLines,
+  blueprint: Blueprint,
+  'circuit-trace': CircuitTrace,
 }
 
 /**
@@ -72,4 +96,12 @@ export const registry: ComponentMeta[] = [
   { ...whisperSmokeInfo, Component: WhisperSmoke },
   { ...inkBloomInfo, Component: InkBloom },
   { ...dustDriftInfo, Component: DustDrift },
+  { ...weatherRadarInfo, Component: WeatherRadar },
+  { ...thermalCamInfo, Component: ThermalCam },
+  { ...topoContourInfo, Component: TopoContour },
+  { ...radarSweepInfo, Component: RadarSweep },
+  { ...oscilloscopeInfo, Component: Oscilloscope },
+  { ...fieldLinesInfo, Component: FieldLines },
+  { ...blueprintInfo, Component: Blueprint },
+  { ...circuitTraceInfo, Component: CircuitTrace },
 ]
