@@ -26,17 +26,8 @@ import { Blueprint, blueprintInfo } from './components/blueprint'
 import { CircuitTrace, circuitTraceInfo } from './components/circuit-trace'
 import { CoralGrowth, coralGrowthInfo } from './components/coral-growth'
 import { Mitosis, mitosisInfo } from './components/mitosis'
-import { Kaleidoscope, kaleidoscopeInfo } from './components/kaleidoscope'
-import { MandalaBloom, mandalaBloomInfo } from './components/mandala-bloom'
-import { FractalZoom, fractalZoomInfo } from './components/fractal-zoom'
-import { ApollonianWeave, apollonianWeaveInfo } from './components/apollonian-weave'
-import { MarbleTurbulence, marbleTurbulenceInfo } from './components/marble-turbulence'
-import { NebulaTurbulence, nebulaTurbulenceInfo } from './components/nebula-turbulence'
-import { CellGrowth, cellGrowthInfo } from './components/cell-growth'
-import { CrystalFacets, crystalFacetsInfo } from './components/crystal-facets'
 import { AsciiFluid, asciiFluidInfo } from './components/ascii-fluid'
 import { BrailleMatrix, brailleMatrixInfo } from './components/braille-matrix'
-import { MatrixRain, matrixRainInfo } from './components/matrix-rain'
 import { CrtTerminal, crtTerminalInfo } from './components/crt-terminal'
 import { PortraitReveal, portraitRevealInfo } from './components/portrait-reveal'
 import { TypographicCloud, typographicCloudInfo } from './components/typographic-cloud'
@@ -65,17 +56,8 @@ export { Blueprint, type BlueprintProps } from './components/blueprint'
 export { CircuitTrace, type CircuitTraceProps } from './components/circuit-trace'
 export { CoralGrowth, type CoralGrowthProps } from './components/coral-growth'
 export { Mitosis, type MitosisProps } from './components/mitosis'
-export { Kaleidoscope, type KaleidoscopeProps } from './components/kaleidoscope'
-export { MandalaBloom, type MandalaBloomProps } from './components/mandala-bloom'
-export { FractalZoom, type FractalZoomProps } from './components/fractal-zoom'
-export { ApollonianWeave, type ApollonianWeaveProps } from './components/apollonian-weave'
-export { MarbleTurbulence, type MarbleTurbulenceProps } from './components/marble-turbulence'
-export { NebulaTurbulence, type NebulaTurbulenceProps } from './components/nebula-turbulence'
-export { CellGrowth, type CellGrowthProps } from './components/cell-growth'
-export { CrystalFacets, type CrystalFacetsProps } from './components/crystal-facets'
 export { AsciiFluid, type AsciiFluidProps } from './components/ascii-fluid'
 export { BrailleMatrix, type BrailleMatrixProps } from './components/braille-matrix'
-export { MatrixRain, type MatrixRainProps } from './components/matrix-rain'
 export { CrtTerminal, type CrtTerminalProps } from './components/crt-terminal'
 export { PortraitReveal, type PortraitRevealProps } from './components/portrait-reveal'
 export { TypographicCloud, type TypographicCloudProps } from './components/typographic-cloud'
@@ -107,17 +89,8 @@ export const components: Record<string, ComponentType<any>> = {
   'circuit-trace': CircuitTrace,
   'coral-growth': CoralGrowth,
   mitosis: Mitosis,
-  kaleidoscope: Kaleidoscope,
-  'mandala-bloom': MandalaBloom,
-  'fractal-zoom': FractalZoom,
-  'apollonian-weave': ApollonianWeave,
-  'marble-turbulence': MarbleTurbulence,
-  'nebula-turbulence': NebulaTurbulence,
-  'cell-growth': CellGrowth,
-  'crystal-facets': CrystalFacets,
   'ascii-fluid': AsciiFluid,
   'braille-matrix': BrailleMatrix,
-  'matrix-rain': MatrixRain,
   'crt-terminal': CrtTerminal,
   'portrait-reveal': PortraitReveal,
   'typographic-cloud': TypographicCloud,
@@ -154,17 +127,8 @@ export const registry: ComponentMeta[] = [
   { ...circuitTraceInfo, Component: CircuitTrace },
   { ...coralGrowthInfo, Component: CoralGrowth },
   { ...mitosisInfo, Component: Mitosis },
-  { ...kaleidoscopeInfo, Component: Kaleidoscope },
-  { ...mandalaBloomInfo, Component: MandalaBloom },
-  { ...fractalZoomInfo, Component: FractalZoom },
-  { ...apollonianWeaveInfo, Component: ApollonianWeave },
-  { ...marbleTurbulenceInfo, Component: MarbleTurbulence },
-  { ...nebulaTurbulenceInfo, Component: NebulaTurbulence },
-  { ...cellGrowthInfo, Component: CellGrowth },
-  { ...crystalFacetsInfo, Component: CrystalFacets },
   { ...asciiFluidInfo, Component: AsciiFluid },
   { ...brailleMatrixInfo, Component: BrailleMatrix },
-  { ...matrixRainInfo, Component: MatrixRain },
   { ...crtTerminalInfo, Component: CrtTerminal },
   { ...portraitRevealInfo, Component: PortraitReveal },
   { ...typographicCloudInfo, Component: TypographicCloud },

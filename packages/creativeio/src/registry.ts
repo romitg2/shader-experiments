@@ -23,17 +23,8 @@ import { blueprintInfo } from './components/blueprint/meta'
 import { circuitTraceInfo } from './components/circuit-trace/meta'
 import { coralGrowthInfo } from './components/coral-growth/meta'
 import { mitosisInfo } from './components/mitosis/meta'
-import { kaleidoscopeInfo } from './components/kaleidoscope/meta'
-import { mandalaBloomInfo } from './components/mandala-bloom/meta'
-import { fractalZoomInfo } from './components/fractal-zoom/meta'
-import { apollonianWeaveInfo } from './components/apollonian-weave/meta'
-import { marbleTurbulenceInfo } from './components/marble-turbulence/meta'
-import { nebulaTurbulenceInfo } from './components/nebula-turbulence/meta'
-import { cellGrowthInfo } from './components/cell-growth/meta'
-import { crystalFacetsInfo } from './components/crystal-facets/meta'
 import { asciiFluidInfo } from './components/ascii-fluid/meta'
 import { brailleMatrixInfo } from './components/braille-matrix/meta'
-import { matrixRainInfo } from './components/matrix-rain/meta'
 import { crtTerminalInfo } from './components/crt-terminal/meta'
 import { portraitRevealInfo } from './components/portrait-reveal/meta'
 import { typographicCloudInfo } from './components/typographic-cloud/meta'
@@ -73,17 +64,8 @@ export const registry: ComponentInfo[] = [
   circuitTraceInfo,
   coralGrowthInfo,
   mitosisInfo,
-  kaleidoscopeInfo,
-  mandalaBloomInfo,
-  fractalZoomInfo,
-  apollonianWeaveInfo,
-  marbleTurbulenceInfo,
-  nebulaTurbulenceInfo,
-  cellGrowthInfo,
-  crystalFacetsInfo,
   asciiFluidInfo,
   brailleMatrixInfo,
-  matrixRainInfo,
   crtTerminalInfo,
   portraitRevealInfo,
   typographicCloudInfo,

@@ -100,19 +100,10 @@ buffers at all, chosen specifically to stay cheap on ordinary hardware:
 | Circuit Trace | `circuit-trace` | Grid cells connected by orthogonal PCB-style traces instead of filled squares |
 | Coral Growth | `coral-growth` | Gray-Scott reaction-diffusion (not the fluid sim) — two chemicals self-organize into coral-like branching |
 | Mitosis | `mitosis` | Same reaction-diffusion engine, different feed/kill preset — thinner winding maze-like growth |
-| Kaleidoscope | `kaleidoscope` | Fluid sim UV-folded into an N-way mirrored wedge at zero extra cost — any gesture becomes a mandala |
-| Mandala Bloom | `mandala-bloom` | Kaleidoscope fold + Ink Bloom's edge-pooling, with a slow auto-rotation |
-| Fractal Zoom | `fractal-zoom` | Standalone: fixed 8-iteration IFS fold (no sim buffers), genuine Sierpinski-style self-similarity |
-| Apollonian Weave | `apollonian-weave` | Same fixed-iteration IFS technique, circle-inversion fold instead of abs-fold |
-| Marble Turbulence | `marble-turbulence` | Standalone: fixed 5-octave domain-warped FBM noise, marbled look |
-| Nebula Turbulence | `nebula-turbulence` | Same FBM technique, larger warp + cosmic palette + a cheap twinkling-star layer |
-| Cell Growth | `cell-growth` | Standalone: Worley (cellular) noise, 9 distance checks per pixel, pulsing glow |
-| Crystal Facets | `crystal-facets` | Same Worley search tracking F1+F2 for true flat-shaded Voronoi regions with edge lines |
 | ASCII Fluid | `ascii-fluid` | Fluid sim rendered as monospace glyphs — density bucketed into brightness levels, looked up in a Canvas2D-built texture atlas |
 | Braille Matrix | `braille-matrix` | Fluid sim rendered as a procedural 2x4 braille dot grid — no font atlas, 8x finer effective sampling than ASCII Fluid |
-| Matrix Code Rain | `matrix-rain` | Standalone: hash-seeded falling glyph columns with a bright head and fading tail, always visible |
 | CRT Terminal | `crt-terminal` | ASCII Fluid's glyph technique plus a scanline/vignette/chromatic-aberration CRT overlay |
-| Portrait Reveal | `portrait-reveal` | Standalone: domain-warped FBM rendered as ASCII everywhere, with a cursor-following lens revealing the raw smooth field |
+| Portrait Reveal | `portrait-reveal` | Standalone: domain-warped FBM turbulence rendered as ASCII everywhere |
 | Typographic Cloud | `typographic-cloud` | Fluid sim on a transparent canvas, rendered as fixed random letters whose opacity (not identity) tracks density |
 
 Every component shares the category `smoke-fluid`.

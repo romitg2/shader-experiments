@@ -6,5 +6,5 @@ export const portraitRevealInfo: ComponentInfo = {
   category: 'smoke-fluid',
   tags: ['webgl', 'ascii', 'standalone', 'cheap', 'fbm', 'interactive', 'mouse'],
   description:
-    'Standalone: a domain-warped FBM field (same technique as Marble/Nebula Turbulence) is rendered as ASCII everywhere, but a circular lens that follows the cursor reveals the raw smooth field underneath with a touch of chromatic aberration - the pixelated-blob-resolves-into-a-smooth-blob transition, driven by where you point.',
+    'Standalone: a domain-warped FBM turbulence field is rendered entirely as ASCII glyphs from a texture atlas. The cursor injects a local warp bump into the noise itself, so moving it pushes a flow/ripple through the pattern that dissipates once it stops - no hidden layer, no lens, just the ASCII field responding to motion.',
 }
