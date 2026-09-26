@@ -21,6 +21,16 @@ import { oscilloscopeInfo } from './components/oscilloscope/meta'
 import { fieldLinesInfo } from './components/field-lines/meta'
 import { blueprintInfo } from './components/blueprint/meta'
 import { circuitTraceInfo } from './components/circuit-trace/meta'
+import { coralGrowthInfo } from './components/coral-growth/meta'
+import { mitosisInfo } from './components/mitosis/meta'
+import { kaleidoscopeInfo } from './components/kaleidoscope/meta'
+import { mandalaBloomInfo } from './components/mandala-bloom/meta'
+import { fractalZoomInfo } from './components/fractal-zoom/meta'
+import { apollonianWeaveInfo } from './components/apollonian-weave/meta'
+import { marbleTurbulenceInfo } from './components/marble-turbulence/meta'
+import { nebulaTurbulenceInfo } from './components/nebula-turbulence/meta'
+import { cellGrowthInfo } from './components/cell-growth/meta'
+import { crystalFacetsInfo } from './components/crystal-facets/meta'
 
 /**
  * Server-safe catalog: metadata only, no component references. Published as
@@ -55,6 +65,16 @@ export const registry: ComponentInfo[] = [
   fieldLinesInfo,
   blueprintInfo,
   circuitTraceInfo,
+  coralGrowthInfo,
+  mitosisInfo,
+  kaleidoscopeInfo,
+  mandalaBloomInfo,
+  fractalZoomInfo,
+  apollonianWeaveInfo,
+  marbleTurbulenceInfo,
+  nebulaTurbulenceInfo,
+  cellGrowthInfo,
+  crystalFacetsInfo,
 ]
 
 export type { ComponentInfo } from './lib/types'

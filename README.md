@@ -67,9 +67,12 @@ registry.forEach(({ id, name, category, description }) => {
 
 ## Components
 
-All current components live in one family — **Fluid Simulation** — sharing the same
-GPU velocity(+density) sim (ping-pong advection, Jacobi pressure solve,
-gradient-subtract incompressibility) behind a different display shader:
+Most components share the same GPU velocity(+density) fluid sim (ping-pong
+advection, Jacobi pressure solve, gradient-subtract incompressibility) behind a
+different display shader. A few branch out into genuinely different techniques —
+Gray-Scott reaction-diffusion (a different simulation model entirely) and several
+standalone single-pass shaders (fractals, noise, Worley cells) with no simulation
+buffers at all, chosen specifically to stay cheap on ordinary hardware:
 
 | Component | id | What's different |
 | --- | --- | --- |
@@ -95,6 +98,16 @@ gradient-subtract incompressibility) behind a different display shader:
 | Field Lines | `field-lines` | Denser, thinner monochrome variant of Flow Field's strokes over a reference grid |
 | Blueprint Schematic | `blueprint` | Edge-detected white contour lines on a solid blueprint-blue backdrop with a technical grid |
 | Circuit Trace | `circuit-trace` | Grid cells connected by orthogonal PCB-style traces instead of filled squares |
+| Coral Growth | `coral-growth` | Gray-Scott reaction-diffusion (not the fluid sim) — two chemicals self-organize into coral-like branching |
+| Mitosis | `mitosis` | Same reaction-diffusion engine, different feed/kill preset — thinner winding maze-like growth |
+| Kaleidoscope | `kaleidoscope` | Fluid sim UV-folded into an N-way mirrored wedge at zero extra cost — any gesture becomes a mandala |
+| Mandala Bloom | `mandala-bloom` | Kaleidoscope fold + Ink Bloom's edge-pooling, with a slow auto-rotation |
+| Fractal Zoom | `fractal-zoom` | Standalone: fixed 8-iteration IFS fold (no sim buffers), genuine Sierpinski-style self-similarity |
+| Apollonian Weave | `apollonian-weave` | Same fixed-iteration IFS technique, circle-inversion fold instead of abs-fold |
+| Marble Turbulence | `marble-turbulence` | Standalone: fixed 5-octave domain-warped FBM noise, marbled look |
+| Nebula Turbulence | `nebula-turbulence` | Same FBM technique, larger warp + cosmic palette + a cheap twinkling-star layer |
+| Cell Growth | `cell-growth` | Standalone: Worley (cellular) noise, 9 distance checks per pixel, pulsing glow |
+| Crystal Facets | `crystal-facets` | Same Worley search tracking F1+F2 for true flat-shaded Voronoi regions with edge lines |
 
 Every component shares the category `smoke-fluid`.
 
