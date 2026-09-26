@@ -25,6 +25,8 @@ interface DustDriftSimProps {
   speed: number
   lifeGain: number
   lifeDecay: number
+  baseLife: number
+  returnRate: number
   color: string
 }
 
@@ -38,6 +40,8 @@ function DustDriftSim({
   speed,
   lifeGain,
   lifeDecay,
+  baseLife,
+  returnRate,
   color,
 }: DustDriftSimProps) {
   const { gl } = useThree()
@@ -114,6 +118,22 @@ function DustDriftSim({
       },
     }
   }, [particleTexSize])
+
+  // Immutable copy of each particle's seeded start position — never
+  // swapped or written to again after the initial seed pass — so
+  // particleUpdate.glsl always has a fixed "home" to pull a disturbed mote
+  // back toward.
+  const homeFBO = useMemo(
+    () =>
+      new THREE.WebGLRenderTarget(particleTexSize, particleTexSize, {
+        minFilter: THREE.NearestFilter,
+        magFilter: THREE.NearestFilter,
+        format: THREE.RGBAFormat,
+        type: THREE.FloatType,
+        depthBuffer: false,
+      }),
+    [particleTexSize],
+  )
 
   const advectionMat = useMemo(
     () =>
@@ -200,15 +220,18 @@ function DustDriftSim({
         fragmentShader: particleUpdateShader,
         uniforms: {
           uPositions: { value: null },
+          uHome: { value: null },
           uVelocity: { value: null },
           uDt: { value: 0.016 },
           uSpeed: { value: speed },
           uLifeGain: { value: lifeGain },
           uLifeDecay: { value: lifeDecay },
+          uBaseLife: { value: baseLife },
+          uReturnRate: { value: returnRate },
           uTexel: { value: new THREE.Vector2(1 / simResolution, 1 / simResolution) },
         },
       }),
-    [speed, lifeGain, lifeDecay, simResolution],
+    [speed, lifeGain, lifeDecay, baseLife, returnRate, simResolution],
   )
 
   const quadMesh = useMemo(() => {
@@ -220,9 +243,13 @@ function DustDriftSim({
   const seeded = useRef(false)
   useEffect(() => {
     if (seeded.current) return
+    // seedShader is a pure function of vUv, so blitting it into both targets
+    // produces identical values — home stays a permanent copy of the
+    // particles' starting positions.
     blit(gl, simScene, simCamera, quadMesh, seedMat, particles.read)
+    blit(gl, simScene, simCamera, quadMesh, seedMat, homeFBO)
     seeded.current = true
-  }, [gl, simScene, simCamera, quadMesh, seedMat, particles])
+  }, [gl, simScene, simCamera, quadMesh, seedMat, particles, homeFBO])
 
   const prevPointer = useRef({ x: 0.5, y: 0.5 })
 
@@ -307,6 +334,7 @@ function DustDriftSim({
     velocity.swap()
 
     particleUpdateMat.uniforms.uPositions.value = particles.read.texture
+    particleUpdateMat.uniforms.uHome.value = homeFBO.texture
     particleUpdateMat.uniforms.uVelocity.value = velocity.read.texture
     particleUpdateMat.uniforms.uDt.value = dt * 60
     particleUpdateMat.uniforms.uTexel.value.set(1 / simResolution, 1 / simResolution)
@@ -330,16 +358,20 @@ export interface DustDriftProps {
   velocityDissipation?: number
   /** Jacobi iterations for the pressure solve. */
   pressureIterations?: number
-  /** Particle pool is this value squared. Sparse by design — far fewer than Particle Flow. */
+  /** Particle pool is this value squared. Sparser than Particle Flow by design, but not by much. */
   particleTexSize?: number
-  /** Point sprite size in device pixels. Small by design. */
+  /** Point sprite size in device pixels. */
   pointSize?: number
   /** How strongly motes follow the velocity field. Gentle by design. */
   speed?: number
   /** How quickly a mote brightens when disturbed. */
   lifeGain?: number
-  /** How quickly a mote's brightness fades once things settle — slow, for a lazy lingering drift. */
+  /** How quickly a mote's brightness fades toward baseLife once things settle. */
   lifeDecay?: number
+  /** Minimum brightness a mote holds even fully at rest, so it stays visible. */
+  baseLife?: number
+  /** How strongly a disturbed mote is pulled back toward its original position each frame — the higher, the faster it homes once velocity decays. */
+  returnRate?: number
   /** Dust color. */
   color?: string
 }
@@ -350,11 +382,13 @@ export function DustDrift({
   simResolution = 192,
   velocityDissipation = 0.992,
   pressureIterations = 14,
-  particleTexSize = 48,
-  pointSize = 2.2,
+  particleTexSize = 80,
+  pointSize = 3,
   speed = 0.3,
   lifeGain = 0.05,
-  lifeDecay = 0.004,
+  lifeDecay = 0.006,
+  baseLife = 0.18,
+  returnRate = 0.02,
   color = '#fde9c8',
 }: DustDriftProps) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -378,6 +412,8 @@ export function DustDrift({
           speed={speed}
           lifeGain={lifeGain}
           lifeDecay={lifeDecay}
+          baseLife={baseLife}
+          returnRate={returnRate}
           color={color}
         />
       </Canvas>

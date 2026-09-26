@@ -103,7 +103,7 @@ buffers at all, chosen specifically to stay cheap on ordinary hardware:
 | ASCII Fluid | `ascii-fluid` | Fluid sim rendered as monospace glyphs — density bucketed into brightness levels, looked up in a Canvas2D-built texture atlas |
 | Braille Matrix | `braille-matrix` | Fluid sim rendered as a procedural 2x4 braille dot grid — no font atlas, 8x finer effective sampling than ASCII Fluid |
 | CRT Terminal | `crt-terminal` | ASCII Fluid's glyph technique plus a scanline/vignette/chromatic-aberration CRT overlay |
-| Portrait Reveal | `portrait-reveal` | Standalone: domain-warped FBM turbulence rendered as ASCII everywhere |
+| Portrait Reveal | `portrait-reveal` | Standalone: domain-warped FBM turbulence rendered as ASCII, ambient and non-interactive (no cursor input) |
 | Typographic Cloud | `typographic-cloud` | Fluid sim on a transparent canvas, rendered as fixed random letters whose opacity (not identity) tracks density |
 
 Every component shares the category `smoke-fluid`.
