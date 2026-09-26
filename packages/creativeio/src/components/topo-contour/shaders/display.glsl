@@ -19,7 +19,13 @@ vec3 terrainRamp(float t) {
 
 void main() {
     vec4 density = texture2D(uDensity, vUv);
-    float d = max(max(density.r, density.g), density.b);
+    // Density has no upper bound in the sim itself — repeatedly splatting
+    // the same spot (cursor lingering/wiggling in place) can push it well
+    // past 1.0 faster than dissipation can remove it. Without clamping,
+    // the contour-band math below keeps producing extra rings for every
+    // unit past 1.0, cramming lines into the hot spot instead of just
+    // capping out at the snow-peak color.
+    float d = clamp(max(max(density.r, density.g), density.b), 0.0, 1.0);
 
     vec3 fill = terrainRamp(d);
 
